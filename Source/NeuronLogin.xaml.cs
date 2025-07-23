@@ -13,6 +13,7 @@ namespace Neuron
 {
     public partial class MainWindow : Window
     {
+        public int ChatCounter;
         public MainWindow()
         {
             InitializeComponent();

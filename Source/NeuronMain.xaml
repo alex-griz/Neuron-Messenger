@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Neuron"
         mc:Ignorable="d"
-        Title="Neuron - Мессенджер" Height="600" Width="1000" ResizeMode="CanMinimize">
+        Title="Neuron - Мессенджер" Height="800" Width="1400" ResizeMode="CanMinimize">
     <Grid>
         <Canvas>
             <Canvas.Background>
@@ -14,23 +14,10 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <ListView Height="75" Width="135" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" RenderTransformOrigin="0.5,0.5" Canvas.Top="10" Canvas.Left="-2">
-                <ListView.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleY="1"/>
-                        <SkewTransform AngleX="-0.264"/>
-                        <RotateTransform/>
-                        <TranslateTransform X="2.723"/>
-                    </TransformGroup>
-                </ListView.RenderTransform>
-                <ListView.View>
-                    <GridView/>
-                </ListView.View>
-                <ListViewItem Content="ListViewItem"/>
-                <Button/>
-                <Button/>
-                <Button/>
-            </ListView>
+            <ListBox x:Name="ChatList" Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64"/>
+            <ListBox x:Name="MessagesField" Height="720" Width="1100" HorizontalAlignment="Center" Canvas.Left="300" VerticalAlignment="Top" Canvas.Top="64" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
+            <Label Content="Label" Canvas.Left="300" Canvas.Top="10" Height="60" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36"/>
+            <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="300" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
 
     </Grid>
