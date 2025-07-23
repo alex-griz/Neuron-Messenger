@@ -5,8 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Neuron"
         mc:Ignorable="d"
-        Title="NeuronRegistration" Height="450" Width="800">
+        Title="Neuron - Регистрация" Height="600" Width="400" ResizeMode="CanMinimize">
     <Grid>
-        
+        <Canvas>
+            <Canvas.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF22002E"/>
+                    <GradientStop Color="#FF3B0150" Offset="1"/>
+                </LinearGradientBrush>
+            </Canvas.Background>
+            <Label Content="Введите данные для своего аккаунта" Canvas.Left="69" Canvas.Top="50" HorizontalAlignment="Left" VerticalAlignment="Top" Width="262" RenderTransformOrigin="0.497,0.649" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
+            <TextBox Canvas.Left="125" TextWrapping="Wrap" Text="Юзернейм" Canvas.Top="150" Width="150" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White"/>
+            <TextBox Canvas.Left="125" TextWrapping="Wrap" Text="Имя (видно всем)" Canvas.Top="200" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <PasswordBox Canvas.Left="125" Canvas.Top="250" Width="150" Background="{x:Null}" BorderBrush="White" Foreground="White" Height="28" FontSize="20" RenderTransformOrigin="0.104,-0.927" Password="Пароль"/>
+            <Button Content="РЕГИСТРАЦИЯ" Canvas.Left="125" Canvas.Top="350" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Background="{x:Null}" BorderBrush="White" Foreground="White"/>
+        </Canvas>
+
     </Grid>
 </Window>
