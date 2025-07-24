@@ -16,8 +16,8 @@
         <Label Content="Войдите или зарегистрируйтесь" Canvas.Left="89" Canvas.Top="50" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <TextBox x:Name="LoginBox" Canvas.Left="90" TextWrapping="Wrap" Text="Логин" Canvas.Top="150" Width="220" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" RenderTransformOrigin="0.517,0.3"/>
         <PasswordBox x:Name="PasswordBox" Canvas.Left="89" Canvas.Top="200" Width="220" HorizontalAlignment="Center" VerticalAlignment="Top" Height="30" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Password="password" RenderTransformOrigin="0.56,0.394"/>
-        <Button x:Name="LoginButton" Content="ВОЙТИ" Canvas.Left="144" Canvas.Top="300" HorizontalAlignment="Center" VerticalAlignment="Top" Height="30" Width="115" Background="{x:Null}" BorderBrush="#FFFCFCFC" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White"/>
-        <Button x:Name="GegistrationButton" Content="Регистрация" Canvas.Left="144" Canvas.Top="350" RenderTransformOrigin="2.165,0.728" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Width="115"/>
+        <Button x:Name="LoginButton" Content="ВОЙТИ" Canvas.Left="144" Canvas.Top="300" HorizontalAlignment="Center" VerticalAlignment="Top" Height="30" Width="115" Background="{x:Null}" BorderBrush="#FFFCFCFC" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Click="LoginButton_Click"/>
+        <Button x:Name="GegistrationButton" Content="Регистрация" Canvas.Left="144" Canvas.Top="350" RenderTransformOrigin="2.165,0.728" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Width="115" Click="GegistrationButton_Click"/>
 
 
     </Canvas>

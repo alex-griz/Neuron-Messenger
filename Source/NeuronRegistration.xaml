@@ -15,10 +15,10 @@
                 </LinearGradientBrush>
             </Canvas.Background>
             <Label Content="Введите данные для своего аккаунта" Canvas.Left="69" Canvas.Top="50" HorizontalAlignment="Left" VerticalAlignment="Top" Width="262" RenderTransformOrigin="0.497,0.649" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
-            <TextBox Canvas.Left="125" TextWrapping="Wrap" Text="Юзернейм" Canvas.Top="150" Width="150" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White"/>
-            <TextBox Canvas.Left="125" TextWrapping="Wrap" Text="Имя (видно всем)" Canvas.Top="200" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <PasswordBox Canvas.Left="125" Canvas.Top="250" Width="150" Background="{x:Null}" BorderBrush="White" Foreground="White" Height="28" FontSize="20" RenderTransformOrigin="0.104,-0.927" Password="Пароль"/>
-            <Button Content="РЕГИСТРАЦИЯ" Canvas.Left="125" Canvas.Top="350" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Background="{x:Null}" BorderBrush="White" Foreground="White"/>
+            <TextBox x:Name="UsernameBox" Canvas.Left="125" TextWrapping="Wrap" Text="Юзернейм" Canvas.Top="150" Width="150" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White"/>
+            <TextBox x:Name="NameBox" Canvas.Left="125" TextWrapping="Wrap" Text="Имя (видно всем)" Canvas.Top="200" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Foreground="White" Background="{x:Null}" BorderBrush="White" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <PasswordBox x:Name="PasswordBox" Canvas.Left="125" Canvas.Top="250" Width="150" Background="{x:Null}" BorderBrush="White" Foreground="White" Height="28" FontSize="20" RenderTransformOrigin="0.104,-0.927" Password="Пароль"/>
+            <Button Content="РЕГИСТРАЦИЯ" Canvas.Left="125" Canvas.Top="350" Width="150" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20" Background="{x:Null}" BorderBrush="White" Foreground="White" Click="Button_Click"/>
         </Canvas>
 
     </Grid>
