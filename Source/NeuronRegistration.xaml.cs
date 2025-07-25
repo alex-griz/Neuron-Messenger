@@ -39,7 +39,6 @@ namespace Neuron
 
             try
             {
-                Check();
                 if (Check())
                 {
                     DB.OpenConnection();
