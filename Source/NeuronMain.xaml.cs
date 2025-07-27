@@ -14,14 +14,41 @@ using System.Windows.Shapes;
 
 namespace Neuron
 {
-    /// <summary>
-    /// Логика взаимодействия для NeuronMain.xaml
-    /// </summary>
     public partial class NeuronMain : Window
     {
         public NeuronMain()
         {
             InitializeComponent();
+            Commands.LoadContacts();
+
+            string ChooseContact = null;
+
+            while (true)
+            {
+                if (ChooseContact != null)
+                {
+                    Commands.UpdateMessages();
+                }
+            }
+        }
+    }
+    internal class Commands()
+    {
+        public static void LoadMessages()
+        {
+
+        }
+        public static void UpdateMessages()
+        {
+
+        }
+        public static void SendMessage()
+        {
+
+        }
+        public static void LoadContacts()
+        {
+
         }
     }
 }
