@@ -16,8 +16,9 @@
             </Canvas.Background>
             <ListBox x:Name="ChatList" Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64"/>
             <ListBox x:Name="MessagesField" Height="720" Width="1100" HorizontalAlignment="Center" Canvas.Left="300" VerticalAlignment="Top" Canvas.Top="64" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
-            <Label Content="Label" Canvas.Left="300" Canvas.Top="10" Height="60" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36"/>
-            <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="300" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <Label Content="" Canvas.Left="300" Canvas.Top="10" Height="60" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36"/>
+            <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="200" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Button Content="+" Canvas.Left="195" Width="100" Height="60" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60"/>
         </Canvas>
 
     </Grid>
