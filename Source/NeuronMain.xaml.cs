@@ -18,13 +18,12 @@ namespace Neuron
 {
     public partial class NeuronMain : Window
     {
+        public string ChooseContact {  get; set; }
         public NeuronMain()
         {
             InitializeComponent();
             Commands.LoadContacts();
-
-            string ChooseContact = null;
-
+            ChooseContact = null;
             while (true)
             {
                 if (ChooseContact != null)
@@ -34,7 +33,7 @@ namespace Neuron
             }
         }
     }
-    internal class Commands()
+    public class Commands()
     {
         public static void LoadMessages()
         {
@@ -44,28 +43,33 @@ namespace Neuron
         {
 
         }
-        public static void SendMessage()
+        public static void SendMessage(NeuronMain neuronMain)
         {
 
         }
         public static void LoadContacts()
         {
             string[] Contacts = new string[128];
+            ListBox ChatBox = new ListBox();
             DataBase db = new DataBase();
             MySqlDataAdapter adapter = new MySqlDataAdapter();
             DataTable dataTable = new DataTable();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactsList` WHERE `Owner` = @Username", 
+            MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactsBase` WHERE `Owner` = @Username",
             db.getConnection());
 
             command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
             adapter.SelectCommand = command;
             adapter.Fill(dataTable);
 
-            for (int i = 0; i< Contacts.Length; i++)
+            for (int i = 0; i < Contacts.Length; i++)
             {
                 try
                 {
-                    Contacts[i] = dataTable.Rows[1][i].ToString();
+                    Contacts[i] = dataTable.Rows[2][i].ToString();
+                    Button button = new Button() { Content = Contacts[i] };
+
+                    ChatBox.Items.Add(button);
+                    //neuronMain.ChooseContact = dataTable.Rows[1][i];
                     //отображение контакта в списке
                 }
                 catch
