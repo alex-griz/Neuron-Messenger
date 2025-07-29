@@ -22,7 +22,7 @@ namespace Neuron
         public NeuronMain()
         {
             InitializeComponent();
-            Commands.LoadContacts();
+            Commands.LoadContacts(this);
             ChooseContact = null;
             while (true)
             {
@@ -43,11 +43,11 @@ namespace Neuron
         {
 
         }
-        public static void SendMessage(NeuronMain neuronMain)
+        public static void SendMessage()
         {
 
         }
-        public static void LoadContacts()
+        public static void LoadContacts(NeuronMain neuronMain)
         {
             string[] Contacts = new string[128];
             ListBox ChatBox = new ListBox();
@@ -69,7 +69,7 @@ namespace Neuron
                     Button button = new Button() { Content = Contacts[i] };
 
                     ChatBox.Items.Add(button);
-                    //neuronMain.ChooseContact = dataTable.Rows[1][i];
+                    neuronMain.ChooseContact = dataTable.Rows[1][i].ToString();
                     //отображение контакта в списке
                 }
                 catch
