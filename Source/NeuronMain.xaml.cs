@@ -24,13 +24,19 @@ namespace Neuron
             InitializeComponent();
             Commands.LoadContacts(this);
             ChooseContact = null;
-            while (true)
+            /*while (true)
             {
                 if (ChooseContact != null)
                 {
                     Commands.UpdateMessages();
                 }
-            }
+            }*/
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            AddContact window = new AddContact();
+            window.Show();
         }
     }
     public class Commands()
@@ -54,7 +60,7 @@ namespace Neuron
             DataBase db = new DataBase();
             MySqlDataAdapter adapter = new MySqlDataAdapter();
             DataTable dataTable = new DataTable();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactsBase` WHERE `Owner` = @Username",
+            MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactBase` WHERE `Owner` = @Username",
             db.getConnection());
 
             command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
@@ -70,7 +76,7 @@ namespace Neuron
 
                     ChatBox.Items.Add(button);
                     neuronMain.ChooseContact = dataTable.Rows[1][i].ToString();
-                    //отображение контакта в списке
+                    //отображение контакта в списке, дорабатывается
                 }
                 catch
                 {
