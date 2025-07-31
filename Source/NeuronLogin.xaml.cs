@@ -45,6 +45,7 @@ namespace Neuron
 
                 NeuronMain window = new NeuronMain();
                 window.Show();
+                this.Hide();
             }
             else
             {

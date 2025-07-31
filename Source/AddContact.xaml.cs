@@ -31,24 +31,22 @@ namespace Neuron
             DataBase db = new DataBase();
             MySqlDataAdapter adapter = new MySqlDataAdapter();
             DataTable dataTable = new DataTable();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @UN");
-
+            MySqlCommand command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @UN" , db.getConnection());
             command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = Username;
-            adapter.SelectCommand = command;
+
             try
             {
-                db.OpenConnection();
+                adapter.SelectCommand = command;
                 adapter.Fill(dataTable);
-                db.CloseConnection();
 
-                command = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) " +
+                MySqlCommand AddCommand = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) " +
                 "VALUES (@Owner , @ContactuserName , @ContactName)", db.getConnection());
-                command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
-                command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value= Username;
-                command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
+                AddCommand.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
+                AddCommand.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
+                AddCommand.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
 
                 db.OpenConnection();
-                command.ExecuteNonQuery();
+                AddCommand.ExecuteNonQuery();
                 db.CloseConnection();
 
                 MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Information);
@@ -56,9 +54,8 @@ namespace Neuron
             }
             catch
             {
-                MessageBox.Show("Такого пользователя не существует!", "Ошибка", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                MessageBox.Show("Такого пользователя не существует!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Error);
             }
-
         }
     }
 }
