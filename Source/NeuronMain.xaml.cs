@@ -22,7 +22,7 @@ namespace Neuron
         public NeuronMain()
         {
             InitializeComponent();
-            Commands.LoadContacts(this);
+            Commands.LoadContacts(this, ChatList);
             ChooseContact = null;
             /*while (true)
             {
@@ -53,30 +53,25 @@ namespace Neuron
         {
 
         }
-        public static void LoadContacts(NeuronMain neuronMain)
+        public static void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
             string[] Contacts = new string[128];
-            ListBox ChatBox = new ListBox();
             DataBase db = new DataBase();
             MySqlDataAdapter adapter = new MySqlDataAdapter();
-            DataTable dataTable = new DataTable();
+            DataTable ContactsList = new DataTable();
             MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactBase` WHERE `Owner` = @Username",
             db.getConnection());
 
             command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
             adapter.SelectCommand = command;
-            adapter.Fill(dataTable);
+            adapter.Fill(ContactsList);
 
             for (int i = 0; i < Contacts.Length; i++)
             {
                 try
                 {
-                    Contacts[i] = dataTable.Rows[2][i].ToString();
-                    Button button = new Button() { Content = Contacts[i] };
-
-                    ChatBox.Items.Add(button);
-                    neuronMain.ChooseContact = dataTable.Rows[1][i].ToString();
-                    //отображение контакта в списке, дорабатывается
+                    Contacts[i] = ContactsList.Rows[i][2].ToString();
+                    chatListBox.Items.Add(Contacts[i]);
                 }
                 catch
                 {

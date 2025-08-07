@@ -14,7 +14,13 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <ListBox x:Name="ChatList" Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64"/>
+            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding}" Width="295" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
             <ListBox x:Name="MessagesField" Height="720" Width="1100" HorizontalAlignment="Center" Canvas.Left="300" VerticalAlignment="Top" Canvas.Top="64" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
             <Label Content="" Canvas.Left="300" Canvas.Top="10" Height="60" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36"/>
             <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="200" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
