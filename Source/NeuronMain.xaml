@@ -14,17 +14,19 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64">
+            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Content="{Binding}" Width="295" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White"/>
+                        <Button Content="{Binding}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <ListBox x:Name="MessagesField" Height="720" Width="1100" HorizontalAlignment="Center" Canvas.Left="300" VerticalAlignment="Top" Canvas.Top="64" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
-            <Label Content="" Canvas.Left="300" Canvas.Top="10" Height="60" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36"/>
+            <ListBox x:Name="MessagesField" Height="630" Width="1075" HorizontalAlignment="Center" Canvas.Left="310" VerticalAlignment="Top" Canvas.Top="65" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
+            <Label Content="" Canvas.Left="300" Canvas.Top="10" Height="54" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="200" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Button Content="+" Canvas.Left="195" Width="100" Height="60" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60" Click="Button_Click"/>
+            <TextBox Canvas.Left="310" TextWrapping="Wrap" Text="Сообщение..." Canvas.Top="695" Width="975" RenderTransformOrigin="0.521,1.032" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Height="60" UndoLimit="512"/>
+            <Button Content="🢁" Canvas.Left="1290" Canvas.Top="695" RenderTransformOrigin="-0.149,0.057" Height="60" Width="95" Background="{x:Null}" BorderBrush="White" Foreground="White" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
 
     </Grid>
