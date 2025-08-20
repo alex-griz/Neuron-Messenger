@@ -18,7 +18,7 @@ namespace Neuron
 {
     public partial class NeuronMain : Window
     {
-        public string ChooseContact {  get; set; }
+        public static string ChooseContact;
         public NeuronMain()
         {
             InitializeComponent();
@@ -38,6 +38,12 @@ namespace Neuron
             AddContact window = new AddContact();
             window.Show();
         }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            Commands.SendMessage(MessageField.Text);
+            MessageField.Clear();
+        }
     }
     public class Commands()
     {
@@ -49,9 +55,20 @@ namespace Neuron
         {
 
         }
-        public static void SendMessage()
+        public static void SendMessage(string MessageText)
         {
+            DataBase db = new DataBase();
+            MySqlCommand command = new MySqlCommand("INSERT INTO `MessageBase` (`Recipient`, `Sender`, `Time`, `Message`) VALUES (@R, @S, @T, @M)",
+            db.getConnection());
 
+            command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+            command.Parameters.Add("@S" , MySqlDbType.VarChar).Value = MainWindow.Login;
+            command.Parameters.Add("@T", MySqlDbType.DateTime).Value = DateTime.Now;
+            command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
+
+            db.OpenConnection();
+            command.ExecuteNonQuery();
+            db.CloseConnection();
         }
         public static void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
