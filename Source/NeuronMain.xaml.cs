@@ -32,6 +32,14 @@ namespace Neuron
                 }
             }*/
         }
+        private void SelectContact(object sender, RoutedEventArgs e)
+        {
+            Button clickedButton = (Button)sender;
+            string selectContactName = clickedButton.Content.ToString();
+            NeuronMain.ChooseContact = selectContactName;
+
+            HeadNameLabel.Content = selectContactName;
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
