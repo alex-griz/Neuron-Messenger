@@ -21,7 +21,13 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <ListBox x:Name="MessagesField" Height="630" Width="1075" HorizontalAlignment="Center" Canvas.Left="310" VerticalAlignment="Top" Canvas.Top="65" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
+            <ListBox x:Name="MessagesField" Height="630" Width="1075" HorizontalAlignment="Center" Canvas.Left="310" VerticalAlignment="Top" Canvas.Top="65" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding}"></Label>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
             <Label x:Name="HeadNameLabel" Content="" Canvas.Left="300" Canvas.Top="10" Height="54" Width="1100" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="200" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Button Content="+" Canvas.Left="195" Width="100" Height="60" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60" Click="Button_Click"/>

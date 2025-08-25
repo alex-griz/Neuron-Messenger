@@ -18,6 +18,7 @@ namespace Neuron
 {
     public partial class NeuronMain : Window
     {
+        private DataBase db = new DataBase();
         public static string ChooseContact;
         public NeuronMain()
         {
@@ -36,9 +37,20 @@ namespace Neuron
         {
             Button clickedButton = (Button)sender;
             string selectContactName = clickedButton.Content.ToString();
-            NeuronMain.ChooseContact = selectContactName;
+            DataTable dataTable = new DataTable();
+            MySqlDataAdapter adapter = new MySqlDataAdapter();
+            MySqlCommand command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Owner` = @O AND `ContactName` = @C",
+            db.getConnection());
 
+            command.Parameters.Add("@O", MySqlDbType.VarChar).Value = MainWindow.Login;
+            command.Parameters.Add("@C", MySqlDbType.VarChar).Value = selectContactName;
+
+            adapter.SelectCommand = command;
+            adapter.Fill(dataTable);
+
+            NeuronMain.ChooseContact = dataTable.Rows[0][1].ToString();
             HeadNameLabel.Content = selectContactName;
+            Commands.LoadMessages(MessagesField);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -55,9 +67,36 @@ namespace Neuron
     }
     public class Commands()
     {
-        public static void LoadMessages()
+        private static DataBase db = new DataBase();
+        private static MySqlDataAdapter adapter = new MySqlDataAdapter();
+        private static MySqlCommand command = new MySqlCommand();
+        public static void LoadMessages(ListBox MessagesField)
         {
+            DataTable MessageList = new DataTable();
+            command = new MySqlCommand("SELECT * FROM `messagebase` WHERE `Recipient` = @R AND `Sender` = @S",
+            db.getConnection());
 
+            command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+            command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Login;
+
+            adapter.SelectCommand = command;
+            adapter.Fill(MessageList);
+
+            command.Parameters.Clear();
+            command.Parameters.Add("@R", MySqlDbType.VarChar).Value = MainWindow.Login;
+            command.Parameters.Add("@S", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+
+            adapter.Fill(MessageList);
+            command.Parameters.Clear();
+
+            MessageList.DefaultView.Sort = "Time ASC";
+            DataView dataView = MessageList.DefaultView;
+            DataTable SortedMessages = dataView.ToTable();
+
+            for (int i=0; i<SortedMessages.Rows.Count; i++)
+            {
+                MessagesField.Items.Add(SortedMessages.Rows[i][1] + ":   " + SortedMessages.Rows[i][3]+ "   "+ SortedMessages.Rows[i][2]);
+            }
         }
         public static void UpdateMessages()
         {
@@ -65,8 +104,7 @@ namespace Neuron
         }
         public static void SendMessage(string MessageText)
         {
-            DataBase db = new DataBase();
-            MySqlCommand command = new MySqlCommand("INSERT INTO `MessageBase` (`Recipient`, `Sender`, `Time`, `Message`) VALUES (@R, @S, @T, @M)",
+            command = new MySqlCommand("INSERT INTO `MessageBase` (`Recipient`, `Sender`, `Time`, `Message`) VALUES (@R, @S, @T, @M)",
             db.getConnection());
 
             command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
@@ -77,32 +115,24 @@ namespace Neuron
             db.OpenConnection();
             command.ExecuteNonQuery();
             db.CloseConnection();
+
+            command.Parameters.Clear();
         }
         public static void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
-            string[] Contacts = new string[128];
-            DataBase db = new DataBase();
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
             DataTable ContactsList = new DataTable();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `ContactBase` WHERE `Owner` = @Username",
+            command = new MySqlCommand("SELECT * FROM `ContactBase` WHERE `Owner` = @Username",
             db.getConnection());
 
             command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
             adapter.SelectCommand = command;
             adapter.Fill(ContactsList);
 
-            for (int i = 0; i < Contacts.Length; i++)
+            for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                try
-                {
-                    Contacts[i] = ContactsList.Rows[i][2].ToString();
-                    chatListBox.Items.Add(Contacts[i]);
-                }
-                catch
-                {
-                    break;
-                }
+                chatListBox.Items.Add(ContactsList.Rows[i][2].ToString());
             }
+            command.Parameters.Clear();
         }
     }
 }
