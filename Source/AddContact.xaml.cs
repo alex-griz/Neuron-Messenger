@@ -49,7 +49,7 @@ namespace Neuron
                 AddCommand.ExecuteNonQuery();
                 db.CloseConnection();
 
-                MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.Close();
             }
             catch
