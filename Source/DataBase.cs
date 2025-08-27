@@ -9,26 +9,16 @@ namespace Neuron
 {
     class DataBase
     {
-        MySqlConnection connection = new MySqlConnection("server=localhost; port= 3306; username=root; password=root; database = NeuronDB");
+        private string _connectionString;
 
-        public void OpenConnection()
+        public DataBase()
         {
-            if (connection.State == System.Data.ConnectionState.Closed)
-            {
-                connection.Open();
-            }
+            _connectionString = "server=localhost; port=3306; username=root; password=root; database=NeuronDB";
         }
 
-        public void CloseConnection()
-        {
-            if (connection.State == System.Data.ConnectionState.Open)
-            {
-                connection.Close();
-            }
-        }
-        public MySqlConnection getConnection()
-        {
-            return connection;
+        public MySqlConnection GetNewConnection() 
+        { 
+            return new MySqlConnection(_connectionString); 
         }
     }
 }
