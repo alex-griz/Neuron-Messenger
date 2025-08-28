@@ -26,19 +26,23 @@ namespace Neuron
         {
             Login = LoginBox.Text;
             string Password = PasswordBox.Password;
-
             DataBase DB = new DataBase();
             DataTable AuthResult = new DataTable();
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
-            DB.getConnection());
-            command.Parameters.Add("@login", MySqlDbType.VarChar).Value = Login;
-            command.Parameters.Add("@password", MySqlDbType.VarChar).Value = Password;
-
-            adapter.SelectCommand = command;
-            adapter.Fill(AuthResult);
-
+            using (var connection = DB.GetNewConnection())
+            {
+                using (var command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
+            connection))
+                {
+                    command.Parameters.Add("@login", MySqlDbType.VarChar).Value = Login;
+                    command.Parameters.Add("@password", MySqlDbType.VarChar).Value = Password;
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        connection.Open();
+                        adapter.Fill(AuthResult);
+                    }
+                }
+            }
             if (AuthResult.Rows.Count > 0)
             {
                 MessageBox.Show("Успешный вход!", "Neuron - Авторизация", MessageBoxButton.OK, MessageBoxImage.Information);

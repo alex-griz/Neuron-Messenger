@@ -3,6 +3,7 @@ using Mysqlx.Crud;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,32 +30,35 @@ namespace Neuron
         {
             string Username = ContactUsername.Text;
             DataBase db = new DataBase();
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
             DataTable dataTable = new DataTable();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @UN" , db.getConnection());
-            command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = Username;
-
-            try
+            using (var connection = db.GetNewConnection())
             {
-                adapter.SelectCommand = command;
-                adapter.Fill(dataTable);
-
-                MySqlCommand AddCommand = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) " +
-                "VALUES (@Owner , @ContactuserName , @ContactName)", db.getConnection());
-                AddCommand.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
-                AddCommand.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
-                AddCommand.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
-
-                db.OpenConnection();
-                AddCommand.ExecuteNonQuery();
-                db.CloseConnection();
-
-                MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
-                this.Close();
-            }
-            catch
-            {
-                MessageBox.Show("Такого пользователя не существует!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                using (var command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @UN", connection))
+                {
+                    command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = Username;
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        adapter.Fill(dataTable);
+                    }
+                }
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) "+
+                "VALUES (@Owner , @ContactuserName , @ContactName)", connection))
+                {
+                    command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
+                    command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.Close();
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Такого пользователя не существует!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                    }
+                }
             }
         }
     }

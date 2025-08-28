@@ -19,57 +19,60 @@ namespace Neuron
     public partial class NeuronRegistration : Window
     {
         public string Username;
+        DataBase DB = new DataBase();
         public NeuronRegistration()
         {
             InitializeComponent();
         }
-
+        
         public void Button_Click(object sender, RoutedEventArgs e)
         {
             string Name = NameBox.Text;
             Username = UsernameBox.Text;
             string Password = PasswordBox.Password;
 
-            DataBase DB = new DataBase();
-            MySqlCommand command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)",
-            DB.getConnection());
-            command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;
-            command.Parameters.Add("@Name", MySqlDbType.VarChar).Value = Name;
-            command.Parameters.Add("@Password", MySqlDbType.VarChar).Value = Password;
+            using(var connection = DB.GetNewConnection())
+            {
+                using (var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)",
+                    connection))
+                {
+                    command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;
+                    command.Parameters.Add("@Name", MySqlDbType.VarChar).Value = Name;
+                    command.Parameters.Add("@Password", MySqlDbType.VarChar).Value = Password;
 
-            try
-            {
-                if (Check())
-                {
-                    DB.OpenConnection();
-                    command.ExecuteNonQuery();
-                    DB.CloseConnection();
-                    MessageBox.Show("Успешная регистрация!", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Такое имя пользователя уже существует! Придумайте другое", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                    if (Check())
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        MessageBox.Show("Успешная регистрация!", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Такое имя пользователя уже существует! Придумайте другое", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                    }
                 }
             }
-            catch
-            {
-                MessageBox.Show("Возникли ошибки при регистрации", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-            }
+   
+             
         }
         private bool Check()
         {
             bool result = false;
-            DataBase DB = new DataBase();
             DataTable AuthResult = new DataTable();
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @Username",
-            DB.getConnection());
-            command.Parameters.Add("username", MySqlDbType.VarChar).Value = Username;
+            using (var connection = DB.GetNewConnection())
+            {
+                using (var command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @Username",
+                  connection))
+                {
+                    command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        adapter.Fill(AuthResult);
+                    }
+                }
+            }
             
-            adapter.SelectCommand = command;
-            adapter.Fill(AuthResult);
-
             if (AuthResult.Rows.Count == 0)
             {
                 result = true;
