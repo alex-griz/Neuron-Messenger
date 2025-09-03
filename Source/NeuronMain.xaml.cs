@@ -76,8 +76,8 @@ namespace Neuron
             DataTable MessageList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT * FROM `MessageBase WHERE (`Recipient = @R AND `Sender` = @S) OR " +
-                    "(`Recipient = @S AND `Sender` = @R)", connection))
+                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE (`Recipient` = @R AND `Sender` = @S) OR " +
+                "(`Recipient` = @S AND `Sender` = @R)", connection))
                 {
                     command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
                     command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Login;
@@ -126,7 +126,7 @@ namespace Neuron
             DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using(var command = new MySqlCommand("SELECT * FROM `ContactBase` WHERE `Owner` = @Username", connection))
+                using(var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Owner` = @Username", connection))
                 {
                     command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
                     using (var adapter = new MySqlDataAdapter(command))

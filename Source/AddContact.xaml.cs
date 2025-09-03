@@ -40,17 +40,35 @@ namespace Neuron
                     {
                         adapter.Fill(dataTable);
                     }
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = MainWindow.Login;
+
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        adapter.Fill(dataTable);
+                    }
                 }
                 using (var command = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) "+
                 "VALUES (@Owner , @ContactuserName , @ContactName)", connection))
                 {
-                    command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
-                    command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
-                    command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
+                    
                     try
                     {
+                        command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
+                        command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
+                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
+
                         connection.Open();
                         command.ExecuteNonQuery();
+
+                        command.Parameters.Clear();
+                        command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = Username;
+                        command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = MainWindow.Login;
+                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[1][1];
+
+                        command.ExecuteNonQuery();
+
                         MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
                         this.Close();
                     }
