@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Mysqlx.Crud;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -100,11 +101,11 @@ namespace Neuron
         }
         public void UpdateMessages()
         {
-
+            // через Kafka подключение
         }
         public void SendMessage(string MessageText)
         {
-            using (var connection = db.GetNewConnection())
+            using (var connection = db.GetNewConnection())  //отправка в Kafka сервис
             {
                 connection.Open();
 

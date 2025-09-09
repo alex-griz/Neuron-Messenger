@@ -62,7 +62,7 @@ namespace Neuron
 
             using (var connection = DB.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @Username",
+                using (var command = new MySqlCommand("SELECT `Name` FROM `authbase` WHERE `Username` = @Username",
                   connection))
                 {
                     command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;

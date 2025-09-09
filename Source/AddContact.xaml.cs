@@ -33,7 +33,7 @@ namespace Neuron
             DataTable dataTable = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT * FROM `authbase` WHERE `Username` = @UN", connection))
+                using (var command = new MySqlCommand("SELECT `Name` FROM `authbase` WHERE `Username` = @UN", connection))
                 {
                     command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = Username;
                     using (var adapter = new MySqlDataAdapter(command))
@@ -57,7 +57,7 @@ namespace Neuron
                     {
                         command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
                         command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
-                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][1];
+                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][0];
 
                         connection.Open();
                         command.ExecuteNonQuery();
@@ -65,7 +65,7 @@ namespace Neuron
                         command.Parameters.Clear();
                         command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = Username;
                         command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = MainWindow.Login;
-                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[1][1];
+                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[1][0];
 
                         command.ExecuteNonQuery();
 
