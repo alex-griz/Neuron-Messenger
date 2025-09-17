@@ -16,43 +16,47 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Confluent.Kafka;
 
 namespace Neuron
 {
     public partial class NeuronMain : Window
     {
         private DataBase db = new DataBase();
-        public static string ChooseContact;
+        public static int ChooseContact;
+        List<int> ChatID = new List<int>();
+
         Commands commands = new Commands();
+
+        private IProducer<string,string> producer;
+        private IConsumer<string,string> consumer;
+
         public NeuronMain()
         {
             InitializeComponent();
-            commands.LoadContacts(this, ChatList);
-            ChooseContact = null;
-            /*while (true)
-            {
-                if (ChooseContact != null)
-                {
-                    Commands.UpdateMessages();
-                }
-            }*/
+            KafkaSet();
+            commands.LoadContacts(this, ChatList, ChatID);
         }
+        private void KafkaSet()
+        {
+            var producerConfig = new ProducerConfig { BootstrapServers = "localhost:9092"};
+            producer = new ProducerBuilder<string,string>(producerConfig).Build();
+
+            var consumerConfig = new ConsumerConfig { 
+                BootstrapServers = "localhost:9092" , 
+                GroupId = "client" + MainWindow.Login,
+                AutoOffsetReset = AutoOffsetReset.Latest
+            };
+            consumer = new ConsumerBuilder<string,string>(consumerConfig).Build();
+        }
+
         private void SelectContact(object sender, RoutedEventArgs e)
         {
             Button clickedButton = (Button)sender;
             string selectContactName = clickedButton.Content.ToString();
-            DataTable dataTable = new DataTable();
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
-            MySqlCommand command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Owner` = @O AND `ContactName` = @C",
-            db.GetNewConnection());
+            int selectContactIndex = ChatList.SelectedIndex;
 
-            command.Parameters.Add("@O", MySqlDbType.VarChar).Value = MainWindow.Login;
-            command.Parameters.Add("@C", MySqlDbType.VarChar).Value = selectContactName;
-
-            adapter.SelectCommand = command;
-            adapter.Fill(dataTable);
-
-            ChooseContact = dataTable.Rows[0][1].ToString();
+            ChooseContact = ChatID[selectContactIndex];
             HeadNameLabel.Content = selectContactName;
             commands.LoadMessages(MessagesField);
         }
@@ -77,11 +81,9 @@ namespace Neuron
             DataTable MessageList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE (`Recipient` = @R AND `Sender` = @S) OR " +
-                "(`Recipient` = @S AND `Sender` = @R)", connection))
+                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE `ChatID` = @CI", connection))
                 {
-                    command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
-                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
                     using (var adapter = new MySqlDataAdapter(command))
                     {
                         connection.Open();
@@ -101,7 +103,7 @@ namespace Neuron
         }
         public void UpdateMessages()
         {
-            // через Kafka подключение
+            
         }
         public void SendMessage(string MessageText)
         {
@@ -110,19 +112,19 @@ namespace Neuron
                 connection.Open();
 
                 using (var command = new MySqlCommand(
-                    "INSERT INTO `MessageBase` (`Recipient`, `Sender`, `Time`, `Message`) VALUES (@R, @S, @T, @M)",
+                    "INSERT INTO `MessageBase` (`Sender`, `Time`, `Message`, `ChatID`) VALUES ( @S, @T, @M, @CI)",
                     connection))
                 {
-                    command.Parameters.Add("@R", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
                     command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Login;
                     command.Parameters.Add("@T", MySqlDbType.DateTime).Value = DateTime.Now;
                     command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
+                    command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
 
                     command.ExecuteNonQuery();
                 }
             }
         }
-        public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
+        public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox, List<int> ChatID)
         {
             DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
@@ -138,9 +140,14 @@ namespace Neuron
                 }
             }
             for(int i = 0; i < ContactsList.Rows.Count; i++)
-{
-                chatListBox.Items.Add(ContactsList.Rows[i][2].ToString());
+            {
+                chatListBox.Items.Add(ContactsList.Rows[i][3].ToString());
+                ChatID.Add(Convert.ToInt32(ContactsList.Rows[i][0]));
             }
+        }
+        public void UpdateContacts()
+        {
+
         }
     }
 }
