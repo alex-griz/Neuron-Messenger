@@ -33,44 +33,36 @@ namespace Neuron
             DataTable dataTable = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT `Name` FROM `authbase` WHERE `Username` = @UN", connection))
+                using (var command = new MySqlCommand("SELECT `ChatID` FROM `contactbase`", connection))
                 {
-                    command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = Username;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        adapter.Fill(dataTable);
-                    }
-
-                    command.Parameters.Clear();
-                    command.Parameters.Add("@UN", MySqlDbType.VarChar).Value = MainWindow.Login;
-
                     using (var adapter = new MySqlDataAdapter(command))
                     {
                         adapter.Fill(dataTable);
                     }
                 }
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`Owner`, `ContactUserName`, `ContactName`) "+
-                "VALUES (@Owner , @ContactuserName , @ContactName)", connection))
+                dataTable.DefaultView.Sort = "ChatID ASC";
+                DataView dataView = dataTable.DefaultView;
+                dataTable = dataView.ToTable();
+
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`) "+
+                "VALUES (@CI , @ME)", connection))
                 {
-                    
                     try
                     {
-                        command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = MainWindow.Login;
-                        command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = Username;
-                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[0][0];
+                        command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = 
+                           Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0])+1;
+                        command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
 
                         connection.Open();
                         command.ExecuteNonQuery();
+                        command.Parameters.Remove(MainWindow.Login);
 
-                        command.Parameters.Clear();
-                        command.Parameters.Add("@Owner", MySqlDbType.VarChar).Value = Username;
-                        command.Parameters.Add("@ContactUserName", MySqlDbType.VarChar).Value = MainWindow.Login;
-                        command.Parameters.Add("@ContactName", MySqlDbType.VarChar).Value = dataTable.Rows[1][0];
+                        command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = Username;
 
                         command.ExecuteNonQuery();
 
-                        MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
                         this.Close();
+                        MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch
                     {

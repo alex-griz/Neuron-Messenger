@@ -24,7 +24,7 @@ namespace Neuron
     {
         private DataBase db = new DataBase();
         public static int ChooseContact;
-        List<int> ChatID = new List<int>();
+        private List<int> ChatID = new List<int>();
 
         Commands commands = new Commands();
 
@@ -112,10 +112,10 @@ namespace Neuron
                 connection.Open();
 
                 using (var command = new MySqlCommand(
-                    "INSERT INTO `MessageBase` (`Sender`, `Time`, `Message`, `ChatID`) VALUES ( @S, @T, @M, @CI)",
+                    "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`) VALUES (@CI ,@S, @M, @T )",
                     connection))
                 {
-                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Name;
                     command.Parameters.Add("@T", MySqlDbType.DateTime).Value = DateTime.Now;
                     command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
                     command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
@@ -129,7 +129,7 @@ namespace Neuron
             DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using(var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Owner` = @Username", connection))
+                using(var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Member` = @Username", connection))
                 {
                     command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
                     using (var adapter = new MySqlDataAdapter(command))
@@ -141,7 +141,7 @@ namespace Neuron
             }
             for(int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                chatListBox.Items.Add(ContactsList.Rows[i][3].ToString());
+                chatListBox.Items.Add(ContactsList.Rows[i][0].ToString());
                 ChatID.Add(Convert.ToInt32(ContactsList.Rows[i][0]));
             }
         }

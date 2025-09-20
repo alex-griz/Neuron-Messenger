@@ -17,6 +17,7 @@ namespace Neuron
     {
         public int ChatCounter;
         public static string Login;
+        public static string Name;
         public MainWindow()
         {
             InitializeComponent();
@@ -31,7 +32,7 @@ namespace Neuron
 
             using (var connection = DB.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT `Username` FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
+                using (var command = new MySqlCommand("SELECT `Username`, `Name` FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
             connection))
                 {
                     command.Parameters.Add("@login", MySqlDbType.VarChar).Value = Login;
@@ -46,6 +47,7 @@ namespace Neuron
             if (AuthResult.Rows.Count > 0)
             {
                 MessageBox.Show("Успешный вход!", "Neuron - Авторизация", MessageBoxButton.OK, MessageBoxImage.Information);
+                Name = AuthResult.Rows[0][1].ToString();
 
                 NeuronMain window = new NeuronMain();
                 window.Show();
