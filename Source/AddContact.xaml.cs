@@ -29,6 +29,7 @@ namespace Neuron
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             string Username = ContactUsername.Text;
+            string ChatName = ChatNameBox.Text;
             DataBase db = new DataBase();
             DataTable dataTable = new DataTable();
             using (var connection = db.GetNewConnection())
@@ -44,14 +45,15 @@ namespace Neuron
                 DataView dataView = dataTable.DefaultView;
                 dataTable = dataView.ToTable();
 
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`) "+
-                "VALUES (@CI , @ME)", connection))
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`) "+
+                "VALUES (@CI , @ME, @CN)", connection))
                 {
                     try
                     {
                         command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = 
                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0])+1;
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
+                        command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
 
                         connection.Open();
                         command.ExecuteNonQuery();

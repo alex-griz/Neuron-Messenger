@@ -22,7 +22,6 @@ namespace Neuron
 {
     public partial class NeuronMain : Window
     {
-        private DataBase db = new DataBase();
         public static int ChooseContact;
         private List<int> ChatID = new List<int>();
 
@@ -141,7 +140,7 @@ namespace Neuron
             }
             for(int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                chatListBox.Items.Add(ContactsList.Rows[i][0].ToString());
+                chatListBox.Items.Add(ContactsList.Rows[i][2].ToString());
                 ChatID.Add(Convert.ToInt32(ContactsList.Rows[i][0]));
             }
         }
