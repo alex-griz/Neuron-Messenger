@@ -23,7 +23,6 @@ namespace Neuron
     public partial class NeuronMain : Window
     {
         public static int ChooseContact;
-        private List<int> ChatID = new List<int>();
 
         Commands commands = new Commands();
 
@@ -34,7 +33,7 @@ namespace Neuron
         {
             InitializeComponent();
             KafkaSet();
-            commands.LoadContacts(this, ChatList, ChatID);
+            commands.LoadContacts(this, ChatList);
         }
         private void KafkaSet()
         {
@@ -53,9 +52,8 @@ namespace Neuron
         {
             Button clickedButton = (Button)sender;
             string selectContactName = clickedButton.Content.ToString();
-            int selectContactIndex = ChatList.SelectedIndex;
 
-            ChooseContact = ChatID[selectContactIndex];
+            ChooseContact = Convert.ToInt32(clickedButton.Tag);
             HeadNameLabel.Content = selectContactName;
             commands.LoadMessages(MessagesField);
         }
@@ -71,6 +69,11 @@ namespace Neuron
             commands.SendMessage(MessageField.Text);
             MessageField.Clear();
         }
+    }
+    public class ContactButton()
+    {
+        public string ButtonName {  get; set; }
+        public int ChatID { get; set; }
     }
     public class Commands()
     {
@@ -123,7 +126,7 @@ namespace Neuron
                 }
             }
         }
-        public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox, List<int> ChatID)
+        public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
             DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
@@ -140,8 +143,12 @@ namespace Neuron
             }
             for(int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                chatListBox.Items.Add(ContactsList.Rows[i][2].ToString());
-                ChatID.Add(Convert.ToInt32(ContactsList.Rows[i][0]));
+                var contact = new ContactButton
+                {
+                    ButtonName = ContactsList.Rows[i][2].ToString(),
+                    ChatID = Convert.ToInt32(ContactsList.Rows[i][0])
+                };
+                chatListBox.Items.Add(contact);
             }
         }
         public void UpdateContacts()

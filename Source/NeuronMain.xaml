@@ -17,7 +17,7 @@
             <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Content="{Binding}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
+                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
