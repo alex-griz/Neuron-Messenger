@@ -100,7 +100,7 @@ namespace Neuron
 
             for (int i=0; i<SortedMessages.Rows.Count; i++)
             {
-                MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][3]+ "\n \n"+ SortedMessages.Rows[i][2]);
+                MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2]+ "\n \n"+ SortedMessages.Rows[i][3]);
             }
         }
         public void UpdateMessages()
