@@ -50,16 +50,19 @@ namespace Neuron
                 {
                     try
                     {
-                        command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = 
-                           Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0])+1;
+                        command.Parameters.Add("@CI", MySqlDbType.VarChar).Value =
+                           Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
                         command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
 
                         connection.Open();
                         command.ExecuteNonQuery();
-                        command.Parameters.Remove(MainWindow.Login);
+                        command.Parameters.Clear();
 
+                        command.Parameters.Add("@CI", MySqlDbType.VarChar).Value =
+                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = Username;
+                        command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = MainWindow.Name;
 
                         command.ExecuteNonQuery();
 

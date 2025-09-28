@@ -23,6 +23,7 @@ namespace Neuron
     public partial class NeuronMain : Window
     {
         public static int ChooseContact;
+        public static string ChooseChatName;
 
         Commands commands = new Commands();
 
@@ -54,6 +55,7 @@ namespace Neuron
             string selectContactName = clickedButton.Content.ToString();
 
             ChooseContact = Convert.ToInt32(clickedButton.Tag);
+            ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
             commands.LoadMessages(MessagesField);
         }
@@ -68,6 +70,12 @@ namespace Neuron
         {
             commands.SendMessage(MessageField.Text);
             MessageField.Clear();
+        }
+
+        private void AddMemberButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddMember addMember = new AddMember();
+            addMember.Show();
         }
     }
     public class ContactButton()
