@@ -15,7 +15,7 @@
                 </LinearGradientBrush>
             </Canvas.Background>
             <Button Content="Добавить" Canvas.Left="150" Canvas.Top="130" Height="30" Width="100" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Click="Button_Click" HorizontalAlignment="Center" VerticalAlignment="Top" RenderTransformOrigin="0.492,0.061"/>
-            <TextBox x:Name="ContactUsername" Canvas.Left="125" TextWrapping="Wrap" Text="Юзернейм" Canvas.Top="35" Width="150" RenderTransformOrigin="0.143,0.871" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <TextBox x:Name="ContactUsername" Canvas.Left="125" TextWrapping="Wrap" Text="Юзернейм" Canvas.Top="28" Width="150" RenderTransformOrigin="0.143,0.871" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <TextBox x:Name="ChatNameBox" Canvas.Left="125" TextWrapping="Wrap" Text="Название чата" Canvas.Top="77" Width="150" RenderTransformOrigin="0.143,0.871" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
 

@@ -24,6 +24,7 @@ namespace Neuron
     {
         public static int ChooseContact;
         public static string ChooseChatName;
+        public static bool IsGroup = false;
 
         Commands commands = new Commands();
 
@@ -60,12 +61,16 @@ namespace Neuron
             commands.LoadMessages(MessagesField);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Add_Contact(object sender, RoutedEventArgs e)
         {
             AddContact window = new AddContact();
             window.Show();
         }
-
+        private void Add_Group(object sender, RoutedEventArgs e)
+        {
+            AddGroup window = new AddGroup();
+            window.Show();
+        }
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             commands.SendMessage(MessageField.Text);
@@ -106,6 +111,7 @@ namespace Neuron
             DataView dataView = MessageList.DefaultView;
             DataTable SortedMessages = dataView.ToTable();
 
+            MessagesField.Items.Clear();
             for (int i=0; i<SortedMessages.Rows.Count; i++)
             {
                 MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2]+ "\n \n"+ SortedMessages.Rows[i][3]);

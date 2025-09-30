@@ -30,10 +30,15 @@
             </ListBox>
             <Label x:Name="HeadNameLabel" Content="" Canvas.Left="300" Canvas.Top="10" Height="54" Width="900" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label Content="               Чаты" Canvas.Top="10" Height="60" Width="200" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Button Content="+" Canvas.Left="195" Width="100" Height="60" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60" Click="Button_Click"/>
             <TextBox x:Name="MessageField" Canvas.Left="310" TextWrapping="Wrap" Text="Сообщение..." Canvas.Top="695" Width="975" RenderTransformOrigin="0.521,1.032" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Height="60" UndoLimit="512"/>
             <Button Content="🢁" Canvas.Left="1290" Canvas.Top="695" RenderTransformOrigin="-0.149,0.057" Height="60" Width="95" Background="{x:Null}" BorderBrush="White" Foreground="White" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click_1"/>
             <Button x:Name="AddMemberButton" Content="+" Canvas.Left="1205" Width="100" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60"  HorizontalAlignment="Center" VerticalAlignment="Top" Click="AddMemberButton_Click"/>
+            <Expander Height="34" Header="Добавить" Canvas.Left="190" Canvas.Top="23" Width="110" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.639,0.538" FontFamily="Bahnschrift Light Condensed" FontSize="20">
+                <StackPanel Margin="0,0,0,-48">
+                    <Button Background="{x:Null}" Foreground="White" BorderBrush="White" Content="Контакт" Click="Add_Contact"></Button>
+                    <Button Background="{x:Null}" BorderBrush="White" Foreground="White" Content="Группа" Click="Add_Group"></Button>
+                </StackPanel>
+            </Expander>
         </Canvas>
 
     </Grid>
