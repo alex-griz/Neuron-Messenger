@@ -35,6 +35,7 @@ namespace Neuron
                     command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact.ToString();
                     command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = Username;
                     command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = NeuronMain.ChooseChatName;
+                    command.Parameters.Add("@IG", MySqlDbType.Int16).Value = 1;
                     try
                     {
                         connection.Open();

@@ -24,7 +24,7 @@ namespace Neuron
     {
         public static int ChooseContact;
         public static string ChooseChatName;
-        public static bool IsGroup = false;
+        public static Button clickedButton;
 
         Commands commands = new Commands();
 
@@ -52,7 +52,7 @@ namespace Neuron
 
         private void SelectContact(object sender, RoutedEventArgs e)
         {
-            Button clickedButton = (Button)sender;
+            clickedButton = (Button)sender; 
             string selectContactName = clickedButton.Content.ToString();
 
             ChooseContact = Convert.ToInt32(clickedButton.Tag);
@@ -79,14 +79,23 @@ namespace Neuron
 
         private void AddMemberButton_Click(object sender, RoutedEventArgs e)
         {
-            AddMember addMember = new AddMember();
-            addMember.Show();
+            ContactButton selected = clickedButton.DataContext as ContactButton;
+            if (selected.IsGroup == 0)
+            {
+                MessageBox.Show("Невозможно добавть участников в личный чат", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                AddMember addMember = new AddMember();
+                addMember.Show();
+            }
         }
     }
     public class ContactButton()
     {
         public string ButtonName {  get; set; }
         public int ChatID { get; set; }
+        public int IsGroup { get; set; }
     }
     public class Commands()
     {
@@ -160,7 +169,8 @@ namespace Neuron
                 var contact = new ContactButton
                 {
                     ButtonName = ContactsList.Rows[i][2].ToString(),
-                    ChatID = Convert.ToInt32(ContactsList.Rows[i][0])
+                    ChatID = Convert.ToInt32(ContactsList.Rows[i][0]),
+                    IsGroup =Convert.ToInt16(ContactsList.Rows[i][3])
                 };
                 chatListBox.Items.Add(contact);
             }
