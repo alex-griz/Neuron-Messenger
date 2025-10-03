@@ -119,11 +119,22 @@ namespace Neuron
             MessageList.DefaultView.Sort = "Time ASC";
             DataView dataView = MessageList.DefaultView;
             DataTable SortedMessages = dataView.ToTable();
+            string CurrentDate = SortedMessages.Rows[0][3].ToString().Substring(0, 10);
 
             MessagesField.Items.Clear();
+            MessagesField.Items.Add(CurrentDate);
             for (int i=0; i<SortedMessages.Rows.Count; i++)
             {
-                MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2]+ "\n \n"+ SortedMessages.Rows[i][3]);
+                if(SortedMessages.Rows[i][3].ToString().Substring(0, 10) == CurrentDate)
+                {
+                    MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2] + "\n \n" + SortedMessages.Rows[i][3].ToString().Substring(11, 5));
+                }
+                else
+                {
+                    CurrentDate = SortedMessages.Rows[i][3].ToString().Substring(0, 10);
+                    MessagesField.Items.Add(CurrentDate);
+                    MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2] + "\n \n" + SortedMessages.Rows[i][3].ToString().Substring(11, 5));
+                }
             }
         }
         public void UpdateMessages()
