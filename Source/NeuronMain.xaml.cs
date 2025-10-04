@@ -156,7 +156,14 @@ namespace Neuron
                     command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
                     command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
 
-                    command.ExecuteNonQuery();
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Не удалось отправить сообщение","Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
