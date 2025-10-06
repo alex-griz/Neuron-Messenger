@@ -76,19 +76,19 @@ namespace Neuron
             commands.SendMessage(MessageField.Text);
             MessageField.Clear();
         }
-
-        private void AddMemberButton_Click(object sender, RoutedEventArgs e)
+        private void OpenMembersList(object sender, RoutedEventArgs e)
         {
-            ContactButton selected = clickedButton.DataContext as ContactButton;
+            ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
             if (selected.IsGroup == 0)
             {
-                MessageBox.Show("Невозможно добавть участников в личный чат", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Действие недоступно для личного чата", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
-                AddMember addMember = new AddMember();
-                addMember.Show();
+                MembersList window = new MembersList();
+                window.Show();
             }
+            
         }
     }
     public class ContactButton()

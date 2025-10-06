@@ -14,7 +14,7 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="720" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="64">
+            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="650" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="105" Canvas.Left="5">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
@@ -29,11 +29,9 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <Label x:Name="HeadNameLabel" Content="" Canvas.Left="310" Canvas.Top="10" Height="54" Width="890" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="Чаты" Canvas.Top="7" Height="60" Width="70" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="125"/>
             <TextBox x:Name="MessageField" Canvas.Left="310" TextWrapping="Wrap" Text="Сообщение..." Canvas.Top="695" Width="975" RenderTransformOrigin="0.521,1.032" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Height="60" UndoLimit="512"/>
             <Button Content="🢁" Canvas.Left="1290" Canvas.Top="695" RenderTransformOrigin="-0.149,0.057" Height="60" Width="95" Background="{x:Null}" BorderBrush="White" Foreground="White" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click_1"/>
-            <Button x:Name="AddMemberButton" Content="+" Canvas.Left="1205" Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Arial" FontSize="60"  HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMemberButton_Click"/>
-            <Expander Height="100" Header="Добавить" Canvas.Left="200" Canvas.Top="20" Width="110" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.639,0.538" FontFamily="Bahnschrift Light Condensed" FontSize="24">
+            <Expander Height="120" Header="Добавить" Canvas.Left="80" Canvas.Top="65" Width="150" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.639,0.538" FontFamily="Bahnschrift Light Condensed" FontSize="36">
                 <StackPanel Margin="0,0,0,-48">
                     <Button Background="#7F9B9B9B" Foreground="White" BorderBrush="{x:Null}" Content="Контакт" Click="Add_Contact" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20"></Button>
                     <Button Background="#7F9B9B9B" BorderBrush="{x:Null}" Foreground="White" Content="Группа" Click="Add_Group" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20"></Button>
@@ -45,7 +43,7 @@
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
                 </StackPanel>
             </Expander>
-            <Button x:Name="MembersButton" Content="Участники" Canvas.Left="1265" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="AddMemberButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Top="5"/>
+            <Button x:Name="MembersButton" Content="Участники" Canvas.Left="1200" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="7"/>
         </Canvas>
 
     </Grid>
