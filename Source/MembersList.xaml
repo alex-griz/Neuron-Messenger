@@ -15,8 +15,14 @@
                 </LinearGradientBrush>
             </Canvas.Background>
             <Label Content="Участники" Canvas.Top="10" Height="45" Width="140" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="130"/>
-            <StackPanel Height="400" Width="400" HorizontalAlignment="Center" Canvas.Top="60" VerticalAlignment="Top"/>
             <Button Content="Добавить" Canvas.Left="158" Canvas.Top="465" BorderBrush="White" Background="{x:Null}" Foreground="White" Height="30" Width="84" FontFamily="Bahnschrift Light Condensed" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Top" Click="AddMember"/>
+            <ListBox x:Name="MembersListBox" Height="400" Width="200" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Left" Canvas.Top="60" VerticalAlignment="Center" Canvas.Left="100">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Foreground="White" BorderBrush="White" Height="30" Width="150" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="{Binding}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Canvas>
 
     </Grid>
