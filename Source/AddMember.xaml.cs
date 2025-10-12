@@ -29,13 +29,14 @@ namespace Neuron
 
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`) VALUES" +
-                    "(@CI , @ME, @CN)", connection))
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `IsGroup`, `IsAdmin`) VALUES" +
+                    "(@CI , @ME, @CN, @IG, @IA)", connection))
                 {
                     command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact.ToString();
                     command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = Username;
                     command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = NeuronMain.ChooseChatName;
                     command.Parameters.Add("@IG", MySqlDbType.Int16).Value = 1;
+                    command.Parameters.Add("@IA", MySqlDbType.Int16).Value =0;
                     try
                     {
                         connection.Open();

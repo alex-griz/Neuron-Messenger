@@ -26,10 +26,66 @@ namespace Neuron
         }
         private void AddMember(object sender, RoutedEventArgs e)
         {
-            AddMember addMember = new AddMember();
-            addMember.Show();
+            if (AdminCheck() == 0)
+            {
+                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                AddMember addMember = new AddMember();
+                addMember.Show();
+            }
         }
-        public void LoadContacts()
+        private void MakeAdmin(object sender, RoutedEventArgs e)
+        {
+            if (AdminCheck() == 0)
+            {
+                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+
+            }
+        }
+        private void DeleteMember(object sender, RoutedEventArgs e)
+        {
+            if (AdminCheck() == 0)
+            {
+                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+
+            }
+        }
+        private int AdminCheck()
+        {
+            using (var connection = db.GetNewConnection())
+            {
+                using (var command = new MySqlCommand("SELECT `IsAdmin` FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection))
+                {
+                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact.ToString();
+                    command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        using (DataTable table = new DataTable())
+                        {
+                            connection.Open();
+                            adapter.Fill(table);
+                            if (Convert.ToInt16(table.Rows[0][0]) == 0)
+                            {
+                                return 0;
+                            }
+                            else
+                            {
+                                return 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private void LoadContacts()
         {
             DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
