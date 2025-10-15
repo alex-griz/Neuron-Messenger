@@ -19,7 +19,7 @@
             <ListBox x:Name="MembersListBox" Height="400" Width="200" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Left" Canvas.Top="60" VerticalAlignment="Center" Canvas.Left="100">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox Foreground="White" BorderBrush="White" Height="30" Width="150" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="{Binding}"/>
+                        <CheckBox Foreground="White" BorderBrush="White" Height="30" Width="150" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="{Binding Name}" IsChecked ="{Binding IsSelected}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

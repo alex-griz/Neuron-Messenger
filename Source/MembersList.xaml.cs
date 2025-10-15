@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -19,6 +21,7 @@ namespace Neuron
     public partial class MembersList : Window
     {
         DataBase db = new DataBase();
+        private ObservableCollection<CheckItem> users = new ObservableCollection<CheckItem>();
         public MembersList()
         {
             InitializeComponent();
@@ -44,7 +47,22 @@ namespace Neuron
             }
             else
             {
-
+                var SelectedUsers = users.Where(u => u.IsSelected).Select(u => u.Name).ToArray();
+                using (var connection = db.GetNewConnection())
+                {
+                    using (var command = new MySqlCommand("UPDATE `contactbase` SET `IsAdmin` = 1 WHERE `ChatID` = @CI AND `Member` = @ME", connection))
+                    {
+                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
+                        command.Parameters.Add("@ME", MySqlDbType.VarChar);
+                        connection.Open();
+                        foreach(string username  in SelectedUsers)
+                        {
+                            command.Parameters["@ME"].Value = username; 
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    SelectedUsers = null;
+                }
             }
         }
         private void DeleteMember(object sender, RoutedEventArgs e)
@@ -55,8 +73,47 @@ namespace Neuron
             }
             else
             {
+                var SelectedUsers = users.Where(u => u.IsSelected).Select(u => u.Name).ToArray();
+                using (var connection = db.GetNewConnection())
+                {
+                    using (var command = new MySqlCommand("DELETE FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection))
+                    {
+                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
+                        command.Parameters.Add("@ME", MySqlDbType.VarChar);
+                        connection.Open();
 
+                        foreach (string username in SelectedUsers)
+                        {
+                            command.Parameters["@ME"].Value = username;
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    SelectedUsers = null;
+                }
             }
+        }
+        private void LoadContacts()
+        {
+            users.Clear();
+            DataTable ContactsList = new DataTable();
+            using (var connection = db.GetNewConnection())
+            {
+                using (var command = new MySqlCommand("SELECT `Member` FROM `contactbase` WHERE `ChatID` = @CI", connection))
+                {
+                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+                    using (var adapter = new MySqlDataAdapter(command))
+                    {
+                        connection.Open();
+                        adapter.Fill(ContactsList);
+                    }
+                }
+            }
+            foreach(DataRow row in ContactsList.Rows)
+            {
+                users.Add(new CheckItem { Name = row[0].ToString(), IsSelected = false });
+            }
+
+            MembersListBox.ItemsSource = users;
         }
         private int AdminCheck()
         {
@@ -85,25 +142,11 @@ namespace Neuron
                 }
             }
         }
-        private void LoadContacts()
-        {
-            DataTable ContactsList = new DataTable();
-            using (var connection = db.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("SELECT `Member` FROM `contactbase` WHERE `ChatID` = @CI", connection))
-                {
-                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        connection.Open();
-                        adapter.Fill(ContactsList);
-                    }
-                }
-            }
-            for (int i = 0; i < ContactsList.Rows.Count; i++)
-            {
-                MembersListBox.Items.Add("@"+ContactsList.Rows[i][0].ToString());
-            }
-        }
+
+    }
+    public class CheckItem()
+    {
+        public string Name { get; set; }
+        public bool IsSelected { get; set; }
     }
 }
