@@ -41,8 +41,8 @@ namespace Neuron
                 DataView dataView = dataTable.DefaultView;
                 dataTable = dataView.ToTable();
 
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `IsGroup`, `IsAdmin`) " +
-                "VALUES (@CI , @ME, @CN, @IG, @IA)", connection))
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `Type`, `IsAdmin`) " +
+                "VALUES (@CI , @ME, @CN, @TY, @IA)", connection))
                 {
                     try
                     {
@@ -50,7 +50,7 @@ namespace Neuron
                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
                         command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
-                        command.Parameters.Add("@IG", MySqlDbType.Int16).Value = 1;
+                        command.Parameters.Add("@TY", MySqlDbType.Int16).Value = 1;
                         command.Parameters.Add("@IA", MySqlDbType.Int16).Value = 1;
 
                         connection.Open();

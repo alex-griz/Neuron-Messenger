@@ -28,7 +28,7 @@ namespace Neuron
             Login = LoginBox.Text;
             string Password = PasswordBox.Password;
             DataBase DB = new DataBase();
-            DataTable AuthResult = new DataTable();
+            using DataTable AuthResult = new DataTable();
 
             using (var connection = DB.GetNewConnection())
             {

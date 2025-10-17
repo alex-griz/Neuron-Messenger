@@ -61,7 +61,6 @@ namespace Neuron
                             command.ExecuteNonQuery();
                         }
                     }
-                    SelectedUsers = null;
                 }
             }
         }
@@ -88,14 +87,13 @@ namespace Neuron
                             command.ExecuteNonQuery();
                         }
                     }
-                    SelectedUsers = null;
                 }
             }
         }
         private void LoadContacts()
         {
             users.Clear();
-            DataTable ContactsList = new DataTable();
+            using DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
                 using (var command = new MySqlCommand("SELECT `Member` FROM `contactbase` WHERE `ChatID` = @CI", connection))
@@ -117,30 +115,8 @@ namespace Neuron
         }
         private int AdminCheck()
         {
-            using (var connection = db.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("SELECT `IsAdmin` FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection))
-                {
-                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact.ToString();
-                    command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        using (DataTable table = new DataTable())
-                        {
-                            connection.Open();
-                            adapter.Fill(table);
-                            if (Convert.ToInt16(table.Rows[0][0]) == 0)
-                            {
-                                return 0;
-                            }
-                            else
-                            {
-                                return 1;
-                            }
-                        }
-                    }
-                }
-            }
+            ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
+            return selected.IsAdmin;
         }
 
     }

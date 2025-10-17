@@ -79,7 +79,7 @@ namespace Neuron
         private void OpenMembersList(object sender, RoutedEventArgs e)
         {
             ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
-            if (selected.IsGroup == 0)
+            if (selected.Type == 0)
             {
                 MessageBox.Show("Действие недоступно для личного чата", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -88,24 +88,26 @@ namespace Neuron
                 MembersList window = new MembersList();
                 window.Show();
             }
-            
         }
     }
     public class ContactButton()
     {
         public string ButtonName {  get; set; }
         public int ChatID { get; set; }
-        public int IsGroup { get; set; }
+        public int Type { get; set; }
+        public int IsAdmin{get; set; }
     }
     public class Commands()
     {
         private DataBase db = new DataBase();
         public void LoadMessages(ListBox MessagesField)
         {
-            DataTable MessageList = new DataTable();
+            using DataTable MessageList = new DataTable();
+            string CurrentDate = null;
+            
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE `ChatID` = @CI", connection))
+                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE `ChatID` = @CI ORDER BY Date ASC, Time ASC", connection))
                 {
                     command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
                     using (var adapter = new MySqlDataAdapter(command))
@@ -116,24 +118,23 @@ namespace Neuron
                 }
             }
 
-            MessageList.DefaultView.Sort = "Time ASC";
-            DataView dataView = MessageList.DefaultView;
-            DataTable SortedMessages = dataView.ToTable();
-            string CurrentDate = SortedMessages.Rows[0][3].ToString().Substring(0, 10);
-
             MessagesField.Items.Clear();
-            MessagesField.Items.Add(CurrentDate);
-            for (int i=0; i<SortedMessages.Rows.Count; i++)
+            if (MessageList.Rows.Count !=0)
             {
-                if(SortedMessages.Rows[i][3].ToString().Substring(0, 10) == CurrentDate)
+                CurrentDate = MessageList.Rows[0][4].ToString();
+                MessagesField.Items.Add(CurrentDate);
+                for (int i = 0; i < MessageList.Rows.Count; i++)
                 {
-                    MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2] + "\n \n" + SortedMessages.Rows[i][3].ToString().Substring(11, 5));
-                }
-                else
-                {
-                    CurrentDate = SortedMessages.Rows[i][3].ToString().Substring(0, 10);
-                    MessagesField.Items.Add(CurrentDate);
-                    MessagesField.Items.Add(SortedMessages.Rows[i][1] + "\n \n" + SortedMessages.Rows[i][2] + "\n \n" + SortedMessages.Rows[i][3].ToString().Substring(11, 5));
+                    if (MessageList.Rows[i][4].ToString() == CurrentDate)
+                    {
+                        MessagesField.Items.Add(MessageList.Rows[i][1] + "\n \n" + MessageList.Rows[i][2] + "\n \n" + MessageList.Rows[i][3].ToString());
+                    }
+                    else
+                    {
+                        CurrentDate = MessageList.Rows[i][4].ToString();
+                        MessagesField.Items.Add(CurrentDate);
+                        MessagesField.Items.Add(MessageList.Rows[i][1] + "\n \n" + MessageList.Rows[i][2] + "\n \n" + MessageList.Rows[i][3].ToString());
+                    }
                 }
             }
         }
@@ -148,13 +149,14 @@ namespace Neuron
                 connection.Open();
 
                 using (var command = new MySqlCommand(
-                    "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`) VALUES (@CI ,@S, @M, @T )",
+                    "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )",
                     connection))
                 {
                     command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Name;
-                    command.Parameters.Add("@T", MySqlDbType.DateTime).Value = DateTime.Now;
+                    command.Parameters.Add("@T", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(10,10);
                     command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
                     command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
+                    command.Parameters.Add("@D", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(0, 10);
 
                     try
                     {
@@ -169,7 +171,7 @@ namespace Neuron
         }
         public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
-            DataTable ContactsList = new DataTable();
+            using DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
                 using(var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Member` = @Username", connection))
@@ -188,7 +190,8 @@ namespace Neuron
                 {
                     ButtonName = ContactsList.Rows[i][2].ToString(),
                     ChatID = Convert.ToInt32(ContactsList.Rows[i][0]),
-                    IsGroup =Convert.ToInt16(ContactsList.Rows[i][3])
+                    Type =Convert.ToInt16(ContactsList.Rows[i][3]),
+                    IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4])
                 };
                 chatListBox.Items.Add(contact);
             }

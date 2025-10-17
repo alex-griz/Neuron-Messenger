@@ -53,12 +53,12 @@ namespace Neuron
                 }
             }
    
-             
+            
         }
         private bool Check()
         {
             bool result = false;
-            DataTable AuthResult = new DataTable();
+            using DataTable AuthResult = new DataTable();
 
             using (var connection = DB.GetNewConnection())
             {
