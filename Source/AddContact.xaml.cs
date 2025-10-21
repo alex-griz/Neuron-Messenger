@@ -60,6 +60,7 @@ namespace Neuron
                         connection.Open();
                         command.ExecuteNonQuery();
 
+                        command.Parameters["@ME"].Value = Username;
                         command.Parameters["@CN"].Value = MainWindow.Name;
                         command.ExecuteNonQuery();
 

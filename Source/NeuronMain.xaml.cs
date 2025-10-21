@@ -25,6 +25,7 @@ namespace Neuron
         public static int ChooseContact;
         public static string ChooseChatName;
         public static Button clickedButton;
+        DataBase db = new DataBase();
 
         Commands commands = new Commands();
 
@@ -78,16 +79,12 @@ namespace Neuron
         }
         private void OpenMembersList(object sender, RoutedEventArgs e)
         {
-            ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
-            if (selected.Type == 0)
-            {
-                MessageBox.Show("Действие недоступно для личного чата", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            else
-            {
-                MembersList window = new MembersList();
-                window.Show();
-            }
+            MembersList window = new MembersList();
+            window.Show();
+        }
+        private void DeleteChat(object sender, RoutedEventArgs e)
+        {
+
         }
     }
     public class ContactButton()

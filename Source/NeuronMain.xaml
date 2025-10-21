@@ -14,10 +14,32 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <ListBox x:Name="ChatList" DataContext="{x:Null}"  Height="650" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="105" Canvas.Left="5">
+            <ListBox x:Name="ChatList" Height="565" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="190" Canvas.Left="5" SelectionMode="Single">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
+                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <ContextMenu.Template>
+                                        <ControlTemplate>
+                                            <Border Background="#7F9B9B9B" BorderThickness="0" Padding="0">
+                                                <StackPanel>
+                                                    <Button Content="Удалить" 
+                                                       Background="Transparent" 
+                                                       Foreground="White" 
+                                                       FontFamily="Bahnschrift Light Condensed" 
+                                                       FontSize="24" 
+                                                       Height="30" 
+                                                       BorderThickness="0"
+                                                       Click="DeleteChat"
+                                                       Tag="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </ContextMenu.Template>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -43,8 +65,8 @@
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
                 </StackPanel>
             </Expander>
-            <Button x:Name="MembersButton" Content="Участники" Canvas.Left="1200" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="7"/>
+            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1200" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="7"/>
         </Canvas>
 
     </Grid>
-</Window>
+</Window> 

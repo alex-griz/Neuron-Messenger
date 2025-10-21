@@ -25,6 +25,7 @@ namespace Neuron
         public MembersList()
         {
             InitializeComponent();
+            NameBox.Text = NeuronMain.ChooseChatName;
             LoadContacts();
         }
         private void AddMember(object sender, RoutedEventArgs e)
@@ -119,6 +120,24 @@ namespace Neuron
             return selected.IsAdmin;
         }
 
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            string NewChatName = NameBox.Text;
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("UPDATE `ContactBase` SET `ChatName` = @CN WHERE `ChatID` = @CI", connection);
+  
+            command.Parameters.AddWithValue("@CN", NewChatName);
+            command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
+            try
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+            catch
+            {
+                MessageBox.Show("Не удалось переименовать чат", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
     public class CheckItem()
     {
