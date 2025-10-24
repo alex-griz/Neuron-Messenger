@@ -29,7 +29,6 @@ namespace Neuron
             string Password = PasswordBox.Password;
             DataBase DB = new DataBase();
             using DataTable AuthResult = new DataTable();
-
             using (var connection = DB.GetNewConnection())
             {
                 using (var command = new MySqlCommand("SELECT `Username`, `Name` FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
@@ -48,6 +47,10 @@ namespace Neuron
             {
                 MessageBox.Show("Успешный вход!", "Neuron - Авторизация", MessageBoxButton.OK, MessageBoxImage.Information);
                 Name = AuthResult.Rows[0][1].ToString();
+                if (SaveLogin.IsChecked == true)
+                {
+                    
+                }
 
                 NeuronMain window = new NeuronMain();
                 window.Show();
@@ -59,10 +62,14 @@ namespace Neuron
             }
         }
 
-        private void GegistrationButton_Click(object sender, RoutedEventArgs e)
+        private void RegistrationButton_Click(object sender, RoutedEventArgs e)
         {
             NeuronRegistration window = new NeuronRegistration();
             window.Show();
+        }
+        private bool WriteLogin()
+        {
+            return false;
         }
     }
 }

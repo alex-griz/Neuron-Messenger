@@ -59,7 +59,7 @@ namespace Neuron
             ChooseContact = Convert.ToInt32(clickedButton.Tag);
             ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
-            commands.LoadMessages(MessagesField);
+            commands.LoadMessages(MessagesField, MessageField, SendButton);
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -84,7 +84,16 @@ namespace Neuron
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
+            var answer = MessageBox.Show("Вы уверены, что хотите безвозвратно удалить этот чат?", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer == MessageBoxResult.Yes)
+            {
+                using var connection = db.GetNewConnection();
+                using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `ChatID` = @CI", connection);
+                command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
 
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
     }
     public class ContactButton()
@@ -97,8 +106,20 @@ namespace Neuron
     public class Commands()
     {
         private DataBase db = new DataBase();
-        public void LoadMessages(ListBox MessagesField)
+        public void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
+            ContactButton clicked = NeuronMain.clickedButton.DataContext as ContactButton;
+            
+            if (clicked.Type == 2 && clicked.IsAdmin != 1)
+            {
+                messageField.Visibility = Visibility.Hidden;
+                sendButton.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                messageField.Visibility = Visibility.Visible;
+                sendButton.Visibility = Visibility.Visible;
+            }
             using DataTable MessageList = new DataTable();
             string CurrentDate = null;
             
