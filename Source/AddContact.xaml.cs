@@ -55,7 +55,7 @@ namespace Neuron
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
                         command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
                         command.Parameters.Add("@TY", MySqlDbType.Int16).Value = 0;
-                        command.Parameters.Add("@IA", MySqlDbType.Int16 ).Value = 0;
+                        command.Parameters.Add("@IA", MySqlDbType.Int16 ).Value = 1;
 
                         connection.Open();
                         command.ExecuteNonQuery();

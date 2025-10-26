@@ -30,7 +30,7 @@ namespace Neuron
         }
         private void AddMember(object sender, RoutedEventArgs e)
         {
-            if (AdminCheck() == 0)
+            if (AdminCheck() == 0 || TypeCheck() == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -42,7 +42,7 @@ namespace Neuron
         }
         private void MakeAdmin(object sender, RoutedEventArgs e)
         {
-            if (AdminCheck() == 0)
+            if (AdminCheck() == 0 || TypeCheck() == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -67,7 +67,7 @@ namespace Neuron
         }
         private void DeleteMember(object sender, RoutedEventArgs e)
         {
-            if (AdminCheck() == 0)
+            if (AdminCheck() == 0 || TypeCheck() == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -118,6 +118,11 @@ namespace Neuron
         {
             ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
             return selected.IsAdmin;
+        }
+        private int TypeCheck()
+        {
+            ContactButton selected = NeuronMain.clickedButton.DataContext as ContactButton;
+            return selected.Type;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

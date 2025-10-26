@@ -17,29 +17,7 @@
             <ListBox x:Name="ChatList" Height="565" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="190" Canvas.Left="5" SelectionMode="Single">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact">
-                            <Button.ContextMenu>
-                                <ContextMenu>
-                                    <ContextMenu.Template>
-                                        <ControlTemplate>
-                                            <Border Background="#7F9B9B9B" BorderThickness="0" Padding="0">
-                                                <StackPanel>
-                                                    <Button Content="Удалить" 
-                                                       Background="Transparent" 
-                                                       Foreground="White" 
-                                                       FontFamily="Bahnschrift Light Condensed" 
-                                                       FontSize="24" 
-                                                       Height="30" 
-                                                       BorderThickness="0"
-                                                       Click="DeleteChat"
-                                                       Tag="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </ContextMenu.Template>
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
+                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -50,7 +28,7 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Label x:Name="HeadNameLabel" Content="" Canvas.Left="310" Canvas.Top="10" Height="54" Width="890" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label x:Name="HeadNameLabel" Content="" Canvas.Left="310" Canvas.Top="10" Height="54" Width="750" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox x:Name="MessageField" Canvas.Left="310" TextWrapping="Wrap" Text="Сообщение..." Canvas.Top="695" Width="975" RenderTransformOrigin="0.521,1.032" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Height="60" UndoLimit="512" Visibility="Hidden"/>
             <Button x:Name="SendButton"  Content="🢁" Canvas.Left="1290" Canvas.Top="695" RenderTransformOrigin="-0.149,0.057" Height="60" Width="95" Background="{x:Null}" BorderBrush="White" Foreground="White" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top" Click="Button_Click_1" Visibility="Hidden"/>
             <Expander Height="120" Header="Добавить" Canvas.Left="80" Canvas.Top="65" Width="150" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.639,0.538" FontFamily="Bahnschrift Light Condensed" FontSize="36">
@@ -65,7 +43,8 @@
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
                 </StackPanel>
             </Expander>
-            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1200" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="7"/>
+            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1065" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="5"/>
+            <Button x:Name="DeleteButton" Content="Удалить" Canvas.Left="1160" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="DeleteChat" Canvas.Top="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
 
     </Grid>

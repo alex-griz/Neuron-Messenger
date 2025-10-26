@@ -25,6 +25,7 @@ namespace Neuron
         public static int ChooseContact;
         public static string ChooseChatName;
         public static Button clickedButton;
+        public static ContactButton clicked = null;
         DataBase db = new DataBase();
 
         Commands commands = new Commands();
@@ -54,11 +55,13 @@ namespace Neuron
         private void SelectContact(object sender, RoutedEventArgs e)
         {
             clickedButton = (Button)sender; 
-            string selectContactName = clickedButton.Content.ToString();
 
+            string selectContactName = clickedButton.Content.ToString();
+            clicked = clickedButton.DataContext as ContactButton;
             ChooseContact = Convert.ToInt32(clickedButton.Tag);
             ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
+
             commands.LoadMessages(MessagesField, MessageField, SendButton);
         }
 
@@ -84,15 +87,35 @@ namespace Neuron
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
-            var answer = MessageBox.Show("Вы уверены, что хотите безвозвратно удалить этот чат?", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (answer == MessageBoxResult.Yes)
+            if (clicked.IsAdmin == 0)
             {
-                using var connection = db.GetNewConnection();
-                using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `ChatID` = @CI", connection);
-                command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
+                var answer = MessageBox.Show("Вы действительно хотите покинуть эту группу? Вы снова сможете присоединиться к ней", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer == MessageBoxResult.Yes)
+                {
+                    using var connection = db.GetNewConnection();
+                    using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `Member` = @ME AND `ChatID` = @CI", connection);
+                    command.Parameters.AddWithValue("@ME", MainWindow.Login);
+                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
 
-                connection.Open();
-                command.ExecuteNonQuery();
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            else
+            {
+                var answer = MessageBox.Show("Вы действительно хотите безвозвратно удалить этот чат?", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer == MessageBoxResult.Yes)
+                {
+                    using var connection = db.GetNewConnection();
+                    using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `ChatID` = @CI", connection);
+                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "DELETE FROM `MessageBase` WHERE `ChatID` = @CI";
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }
@@ -108,9 +131,7 @@ namespace Neuron
         private DataBase db = new DataBase();
         public void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
-            ContactButton clicked = NeuronMain.clickedButton.DataContext as ContactButton;
-            
-            if (clicked.Type == 2 && clicked.IsAdmin != 1)
+            if (NeuronMain.clicked.Type == 2 && NeuronMain.clicked.IsAdmin != 1)
             {
                 messageField.Visibility = Visibility.Hidden;
                 sendButton.Visibility = Visibility.Hidden;
