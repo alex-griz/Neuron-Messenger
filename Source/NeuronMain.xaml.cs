@@ -24,22 +24,21 @@ namespace Neuron
     {
         public static int ChooseContact;
         public static string ChooseChatName;
-        public static Button clickedButton;
         public static ContactButton clicked = null;
         DataBase db = new DataBase();
 
         Commands commands = new Commands();
 
-        private IProducer<string,string> producer;
-        private IConsumer<string,string> consumer;
+        //private IProducer<string,string> producer;
+        //private IConsumer<string,string> consumer;
 
         public NeuronMain()
         {
             InitializeComponent();
-            KafkaSet();
+            //KafkaSet();
             commands.LoadContacts(this, ChatList);
         }
-        private void KafkaSet()
+        /*private void KafkaSet()
         {
             var producerConfig = new ProducerConfig { BootstrapServers = "localhost:9092"};
             producer = new ProducerBuilder<string,string>(producerConfig).Build();
@@ -51,10 +50,10 @@ namespace Neuron
             };
             consumer = new ConsumerBuilder<string,string>(consumerConfig).Build();
         }
-
+        */
         private void SelectContact(object sender, RoutedEventArgs e)
         {
-            clickedButton = (Button)sender; 
+            var clickedButton = (Button)sender; 
 
             string selectContactName = clickedButton.Content.ToString();
             clicked = clickedButton.DataContext as ContactButton;
@@ -80,10 +79,18 @@ namespace Neuron
             commands.SendMessage(MessageField.Text);
             MessageField.Clear();
         }
-        private void OpenMembersList(object sender, RoutedEventArgs e)
+        private void OpenChatFeatures(object sender, RoutedEventArgs e)
         {
-            MembersList window = new MembersList();
-            window.Show();
+            if (NeuronMain.clicked.Type == 0)
+            {
+                ViewProfile window = new ViewProfile();
+                window.Show();
+            }
+            else
+            {
+                MembersList window = new MembersList();
+                window.Show();
+            }
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {

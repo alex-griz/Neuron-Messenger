@@ -43,7 +43,7 @@
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
                 </StackPanel>
             </Expander>
-            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1065" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenMembersList" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="5"/>
+            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1065" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenChatFeatures" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="5"/>
             <Button x:Name="DeleteButton" Content="Удалить" Canvas.Left="1160" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="DeleteChat" Canvas.Top="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
 
