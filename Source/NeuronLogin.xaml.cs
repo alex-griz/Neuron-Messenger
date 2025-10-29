@@ -10,6 +10,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Text.Json;
+using System.IO;
 
 namespace Neuron
 {
@@ -21,12 +23,24 @@ namespace Neuron
         public MainWindow()
         {
             InitializeComponent();
+
+            SaveLoginData loginData = ReadLoginData();
+            if (loginData.Login != null)
+            {
+                Login = loginData.Login;
+                LoginFunction(loginData.Password);
+            }
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             Login = LoginBox.Text;
             string Password = PasswordBox.Password;
+
+            LoginFunction(Password);
+        }
+        private void LoginFunction(string Password)
+        {
             DataBase DB = new DataBase();
             using DataTable AuthResult = new DataTable();
             using (var connection = DB.GetNewConnection())
@@ -45,11 +59,11 @@ namespace Neuron
             }
             if (AuthResult.Rows.Count > 0)
             {
-                MessageBox.Show("Успешный вход!", "Neuron - Авторизация", MessageBoxButton.OK, MessageBoxImage.Information);
                 Name = AuthResult.Rows[0][1].ToString();
                 if (SaveLogin.IsChecked == true)
                 {
-                    
+                    var loginData = new SaveLoginData { Login = Login, Password = Password };
+                    WriteLogin(loginData);
                 }
 
                 NeuronMain window = new NeuronMain();
@@ -67,9 +81,29 @@ namespace Neuron
             NeuronRegistration window = new NeuronRegistration();
             window.Show();
         }
-        private bool WriteLogin()
+        private void WriteLogin(SaveLoginData loginData)
         {
-            return false;
+            string json = JsonSerializer.Serialize(loginData);
+            File.WriteAllText("SavedLoginData.json", json);
         }
+        private SaveLoginData ReadLoginData()
+        {
+            string json = File.ReadAllText("SavedLoginData.json");
+            try
+            {
+                return JsonSerializer.Deserialize<SaveLoginData>(json);
+            }
+            catch
+            {
+                SaveLoginData saveLoginData = new SaveLoginData { Login = null, Password= null};
+                return saveLoginData;
+            }
+            
+        }
+    }
+    public class SaveLoginData()
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
     }
 }

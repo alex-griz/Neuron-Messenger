@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Confluent.Kafka;
+using System.IO;
 
 namespace Neuron
 {
@@ -29,16 +30,16 @@ namespace Neuron
 
         Commands commands = new Commands();
 
-        //private IProducer<string,string> producer;
-        //private IConsumer<string,string> consumer;
+        private IProducer<string,string> producer;
+        private IConsumer<string,string> consumer;
 
         public NeuronMain()
         {
             InitializeComponent();
-            //KafkaSet();
+            KafkaSet();
             commands.LoadContacts(this, ChatList);
         }
-        /*private void KafkaSet()
+        private void KafkaSet()
         {
             var producerConfig = new ProducerConfig { BootstrapServers = "localhost:9092"};
             producer = new ProducerBuilder<string,string>(producerConfig).Build();
@@ -50,7 +51,16 @@ namespace Neuron
             };
             consumer = new ConsumerBuilder<string,string>(consumerConfig).Build();
         }
-        */
+        private void LogOut(object sender ,RoutedEventArgs e)
+        {
+            MainWindow.Login = null;
+            string json = null;
+            File.WriteAllText("SavedLoginData.json", json);
+
+            this.Close();
+            MainWindow window = new MainWindow();
+            window.Show();
+        }
         private void SelectContact(object sender, RoutedEventArgs e)
         {
             var clickedButton = (Button)sender; 
@@ -83,8 +93,7 @@ namespace Neuron
         {
             if (NeuronMain.clicked.Type == 0)
             {
-                ViewProfile window = new ViewProfile();
-                window.Show();
+                //открытие просмотра профиля пользователя
             }
             else
             {
@@ -96,7 +105,7 @@ namespace Neuron
         {
             if (clicked.IsAdmin == 0)
             {
-                var answer = MessageBox.Show("Вы действительно хотите покинуть эту группу? Вы снова сможете присоединиться к ней", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var answer = MessageBox.Show("Вы действительно хотите покинуть этот чат? Вы снова сможете присоединиться к ней", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (answer == MessageBoxResult.Yes)
                 {
                     using var connection = db.GetNewConnection();
@@ -138,16 +147,6 @@ namespace Neuron
         private DataBase db = new DataBase();
         public void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
-            if (NeuronMain.clicked.Type == 2 && NeuronMain.clicked.IsAdmin != 1)
-            {
-                messageField.Visibility = Visibility.Hidden;
-                sendButton.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                messageField.Visibility = Visibility.Visible;
-                sendButton.Visibility = Visibility.Visible;
-            }
             using DataTable MessageList = new DataTable();
             string CurrentDate = null;
             
