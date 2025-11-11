@@ -1,11 +1,14 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Confluent.Kafka;
+using MySql.Data.MySqlClient;
 using Mysqlx.Crud;
 using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,9 +19,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Confluent.Kafka;
-using System.IO;
-using System.Text.Json;
+using static Confluent.Kafka.ConfigPropertyNames;
 
 namespace Neuron
 {
@@ -35,12 +36,6 @@ namespace Neuron
         private IConsumer<string,string> consumer;
 
         public ProducerConfig producerConfig = new ProducerConfig { BootstrapServers = "localhost:9092" };
-        public ConsumerConfig consumerConfig = new ConsumerConfig
-        {
-            BootstrapServers = "localhost:9092",
-            GroupId = "client" + MainWindow.Login,
-            AutoOffsetReset = AutoOffsetReset.Latest
-        };
 
         public NeuronMain()
         {
@@ -67,7 +62,7 @@ namespace Neuron
             ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
 
-            commands.LoadMessages(MessagesField, MessageField, SendButton, consumerConfig);
+            commands.LoadMessages(MessagesField, MessageField, SendButton);
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -149,7 +144,7 @@ namespace Neuron
     public class Commands()
     {
         private DataBase db = new DataBase();
-        public void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton, ConsumerConfig consumerConfig)
+        public async void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
             using DataTable MessageList = new DataTable();
             string CurrentDate = null;
@@ -186,11 +181,17 @@ namespace Neuron
                     }
                 }
             }
-            UpdateMessages(consumerConfig, MessagesField);
+            await UpdateMessages(MessagesField);
         }
-        public void UpdateMessages(ConsumerConfig consumerConfig, ListBox MessagesField)
+        async Task UpdateMessages(ListBox MessagesField)
         {
-            using var consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
+            ConsumerConfig consumerConfig = new ConsumerConfig
+            {
+                BootstrapServers = "localhost:9092",
+                GroupId = "consumer-" + MainWindow.Login,
+                AutoOffsetReset = AutoOffsetReset.Latest
+            };
+            using var consumer = new ConsumerBuilder<KafkaMessage, string>(consumerConfig).Build();
             consumer.Subscribe("chat-messages");
 
             int CheckChatID = NeuronMain.ChooseContact;
@@ -201,9 +202,17 @@ namespace Neuron
                 {
                     KafkaMessage kafkaMessage = JsonSerializer.Deserialize<KafkaMessage>(message.Message.Value);
 
-                    MessagesField.Items.Add(kafkaMessage.Sender + "\n \n" + kafkaMessage.Message + "\n \n" + kafkaMessage.Time);
+                    if (kafkaMessage.ChatID == NeuronMain.ChooseContact)
+                    {
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            MessagesField.Items.Add(kafkaMessage.Sender + "\n \n" + kafkaMessage.Message + "\n \n" + kafkaMessage.Time);
+                        });
+                    }
                 }
+                await Task.Delay(1000);
             }
+
         }
         public void SendMessage(string MessageText, ProducerConfig producerConfig)
         {
@@ -218,8 +227,15 @@ namespace Neuron
                 Date = DateTime.Now.ToString().Substring(0, 10)
             };
             string json = JsonSerializer.Serialize(message);
-
-            producer.Produce("chat-messages", new Message<Null, string> { Value = json});
+            try
+            {
+                producer.Produce("chat-messages", new Message<Null, string> { Value = json });
+            }
+            catch
+            {
+                MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+            }
+            
         }
         public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
