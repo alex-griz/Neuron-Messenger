@@ -20,9 +20,13 @@ public class ChatHub: Hub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChatId);
     }
-    public async Task SendMessage(string ChatId, ChatMessage message) //отправка сообщения в выбранную группу
+    public async Task SendMessageToGroup(string ChatId, ChatMessage message) //отправка сообщения в выбранную группу
     {
-        
+        await Clients.Group(ChatId).SendAsync("GetMessage", message);
+    }
+    public async Task SendMessageToChat(string ChatId, ChatMessage message)
+    {
+        await Clients.Client(ChatId).SendAsync("GetMessage", message);
     }
 }
 public class ChatMessage
