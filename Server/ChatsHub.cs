@@ -24,7 +24,7 @@ public class ChatHub: Hub
     {
         await Clients.Group(ChatId).SendAsync("GetMessage", message);
     }
-    public async Task SendMessageToChat(string ChatId, ChatMessage message)
+    public async Task SendMessageToChat(string ChatId, ChatMessage message) //отправка сообщения в лс
     {
         await Clients.Client(ChatId).SendAsync("GetMessage", message);
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using NeuronServer.Hubs;
 
 namespace NeuronServer
 {
@@ -10,6 +11,9 @@ namespace NeuronServer
             builder.Services.AddSignalR();
             
             var app = builder.Build();
+            app.UseRouting();
+            app.MapHub<ChatHub>("/chatHub");
+            
             app.Run();
         }
     }

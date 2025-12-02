@@ -1,25 +1,9 @@
-﻿using Confluent.Kafka;
-using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
-using MySqlX.XDevAPI;
-using System;
-using System.Collections.Generic;
+﻿using MySql.Data.MySqlClient;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static Confluent.Kafka.ConfigPropertyNames;
+using System.IO;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Neuron
 {
@@ -28,21 +12,28 @@ namespace Neuron
         public static int ChooseContact;
         public static string ChooseChatName;
         public static ContactButton clicked = null;
+        private static HubConnection hubConnection;
+
         DataBase db = new DataBase();
 
         Commands commands = new Commands();
-
-        private IProducer<string,string> producer;
-        private IConsumer<string,string> consumer;
-
-        public ProducerConfig producerConfig = new ProducerConfig { BootstrapServers = "localhost:9092" };
 
         public NeuronMain()
         {
             InitializeComponent();
             commands.LoadContacts(this, ChatList);
+
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl("http://localhost:5156/chatHub")
+                .WithAutomaticReconnect()
+                .Build();
+
+            hubConnection.On<ChatMessage>("GetMessage", message) =>
+            {
+
+            }
         }
-        private void LogOut(object sender ,RoutedEventArgs e)
+        private void LogOut(object sender, RoutedEventArgs e)
         {
             MainWindow.Login = null;
             string json = null;
@@ -54,7 +45,7 @@ namespace Neuron
         }
         private void SelectContact(object sender, RoutedEventArgs e)
         {
-            var clickedButton = (Button)sender; 
+            var clickedButton = (Button)sender;
 
             string selectContactName = clickedButton.Content.ToString();
             clicked = clickedButton.DataContext as ContactButton;
@@ -77,7 +68,7 @@ namespace Neuron
         }
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            commands.SendMessage(MessageField.Text, producerConfig);
+            commands.SendMessage(MessageField.Text);
             MessageField.Clear();
         }
         private void OpenChatFeatures(object sender, RoutedEventArgs e)
@@ -128,27 +119,27 @@ namespace Neuron
     }
     public class ContactButton()
     {
-        public string ButtonName {  get; set; }
+        public string ButtonName { get; set; }
         public int ChatID { get; set; }
         public int Type { get; set; }
-        public int IsAdmin{get; set; }
+        public int IsAdmin { get; set; }
     }
-    public class KafkaMessage()
+    public class ChatMessage
     {
         public int ChatID { get; set; }
         public string Sender { get; set; }
         public string Message { get; set; }
-        public string Time {  get; set; }
-        public string Date {  get; set; }
+        public string Time { get; set; }
+        public string Date { get; set; }
     }
     public class Commands()
     {
         private DataBase db = new DataBase();
-        public async void LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
+        public async Task LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
             using DataTable MessageList = new DataTable();
             string CurrentDate = null;
-            
+
             using (var connection = db.GetNewConnection())
             {
                 using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE `ChatID` = @CI ORDER BY Date ASC, Time ASC", connection))
@@ -163,7 +154,7 @@ namespace Neuron
             }
 
             MessagesField.Items.Clear();
-            if (MessageList.Rows.Count !=0)
+            if (MessageList.Rows.Count != 0)
             {
                 CurrentDate = MessageList.Rows[0][4].ToString();
                 MessagesField.Items.Add(CurrentDate);
@@ -181,68 +172,45 @@ namespace Neuron
                     }
                 }
             }
-            await UpdateMessages(MessagesField);
+            await UpdateMessages();
         }
-        async Task UpdateMessages(ListBox MessagesField)
+        public async Task UpdateMessages()
         {
-            ConsumerConfig consumerConfig = new ConsumerConfig
-            {
-                BootstrapServers = "localhost:9092",
-                GroupId = "consumer-" + MainWindow.Login,
-                AutoOffsetReset = AutoOffsetReset.Latest
-            };
-            using var consumer = new ConsumerBuilder<KafkaMessage, string>(consumerConfig).Build();
-            consumer.Subscribe("chat-messages");
 
-            int CheckChatID = NeuronMain.ChooseContact;
-            while(NeuronMain.ChooseContact == CheckChatID)
+        }
+        public void SendMessage(string MessageText)
+        {
+            using (var connection = db.GetNewConnection()) 
             {
-                var message = consumer.Consume(TimeSpan.FromSeconds(1));
-                if (message != null)
+                connection.Open();
+
+                using (var command = new MySqlCommand(
+                    "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )",
+                    connection))
                 {
-                    KafkaMessage kafkaMessage = JsonSerializer.Deserialize<KafkaMessage>(message.Message.Value);
+                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Name;
+                    command.Parameters.Add("@T", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(10, 10);
+                    command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
+                    command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
+                    command.Parameters.Add("@D", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(0, 10);
 
-                    if (kafkaMessage.ChatID == NeuronMain.ChooseContact)
+                    try
                     {
-                        await Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            MessagesField.Items.Add(kafkaMessage.Sender + "\n \n" + kafkaMessage.Message + "\n \n" + kafkaMessage.Time);
-                        });
+                        command.ExecuteNonQuery();
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
-                await Task.Delay(1000);
             }
-
-        }
-        public void SendMessage(string MessageText, ProducerConfig producerConfig)
-        {
-            using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
-
-            var message = new KafkaMessage
-            {
-                ChatID = NeuronMain.ChooseContact,
-                Sender = MainWindow.Name,
-                Message = MessageText,
-                Time = DateTime.Now.ToString().Substring(10, 9),
-                Date = DateTime.Now.ToString().Substring(0, 10)
-            };
-            string json = JsonSerializer.Serialize(message);
-            try
-            {
-                producer.Produce("chat-messages", new Message<Null, string> { Value = json });
-            }
-            catch
-            {
-                MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-            }
-            
         }
         public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
             using DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using(var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Member` = @Username", connection))
+                using (var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Member` = @Username", connection))
                 {
                     command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
                     using (var adapter = new MySqlDataAdapter(command))
@@ -252,13 +220,13 @@ namespace Neuron
                     }
                 }
             }
-            for(int i = 0; i < ContactsList.Rows.Count; i++)
+            for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
                 var contact = new ContactButton
                 {
                     ButtonName = ContactsList.Rows[i][2].ToString(),
                     ChatID = Convert.ToInt32(ContactsList.Rows[i][0]),
-                    Type =Convert.ToInt16(ContactsList.Rows[i][3]),
+                    Type = Convert.ToInt16(ContactsList.Rows[i][3]),
                     IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4])
                 };
                 chatListBox.Items.Add(contact);
