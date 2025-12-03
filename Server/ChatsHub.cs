@@ -22,7 +22,7 @@ public class ChatHub: Hub
     }
     public async Task SendMessageToGroup(string ChatId, ChatMessage message) //отправка сообщения в выбранную группу
     {
-        await Clients.Group(ChatId).SendAsync("GetMessage", message);
+        await Clients.Group(ChatId).SendAsync("SendMessage", message);
     }
     public async Task SendMessageToChat(string ChatId, ChatMessage message) //отправка сообщения в лс
     {

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.IO;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Threading.Tasks;
 
 namespace Neuron
 {
@@ -28,10 +29,13 @@ namespace Neuron
                 .WithAutomaticReconnect()
                 .Build();
 
-            hubConnection.On<ChatMessage>("GetMessage", message) =>
+            hubConnection.On<ChatMessage>("GetMessage", (message) =>
             {
-
-            }
+                if (message.ChatID == ChooseContact)
+                {
+                    commands.UpdateMessages(this, message);
+                }
+            });
         }
         private void LogOut(object sender, RoutedEventArgs e)
         {
@@ -43,7 +47,7 @@ namespace Neuron
             MainWindow window = new MainWindow();
             window.Show();
         }
-        private void SelectContact(object sender, RoutedEventArgs e)
+        private async Task SelectContact(object sender, RoutedEventArgs e)
         {
             var clickedButton = (Button)sender;
 
@@ -54,6 +58,7 @@ namespace Neuron
             HeadNameLabel.Content = selectContactName;
 
             commands.LoadMessages(MessagesField, MessageField, SendButton);
+            await hubConnection.InvokeAsync("JoinChat", ChooseContact);
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -68,7 +73,7 @@ namespace Neuron
         }
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            commands.SendMessage(MessageField.Text);
+            commands.SendMessage(MessageField.Text, hubConnection);
             MessageField.Clear();
         }
         private void OpenChatFeatures(object sender, RoutedEventArgs e)
@@ -172,14 +177,21 @@ namespace Neuron
                     }
                 }
             }
-            await UpdateMessages();
         }
-        public async Task UpdateMessages()
+        public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage)
         {
+            neuronMain.MessagesField.Items.Add(chatMessage.Sender + "\n \n" + chatMessage.Message + "\n \n" + chatMessage.Time);
+        }
+        public async Task SendMessage(string MessageText, HubConnection hubConnection)
+        {
+            ChatMessage message = new ChatMessage();
+            message.ChatID = NeuronMain.ChooseContact;
+            message.Sender = MainWindow.Name;
+            message.Message = MessageText;
+            message.Time = DateTime.Now.ToString().Substring(10, 10);
+            message.Date = DateTime.Now.ToString().Substring(0, 10);
 
-        }
-        public void SendMessage(string MessageText)
-        {
+            await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
             using (var connection = db.GetNewConnection()) 
             {
                 connection.Open();
@@ -188,11 +200,11 @@ namespace Neuron
                     "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )",
                     connection))
                 {
-                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = MainWindow.Name;
-                    command.Parameters.Add("@T", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(10, 10);
-                    command.Parameters.Add("@M", MySqlDbType.Text).Value = MessageText;
-                    command.Parameters.Add("@CI", MySqlDbType.Int32).Value = NeuronMain.ChooseContact;
-                    command.Parameters.Add("@D", MySqlDbType.VarChar).Value = DateTime.Now.ToString().Substring(0, 10);
+                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
+                    command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
+                    command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
+                    command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
+                    command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
 
                     try
                     {
