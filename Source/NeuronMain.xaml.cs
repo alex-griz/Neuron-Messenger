@@ -36,6 +36,7 @@ namespace Neuron
                     commands.UpdateMessages(this, message);
                 }
             });
+            hubConnection.StartAsync();
         }
         private void LogOut(object sender, RoutedEventArgs e)
         {
@@ -47,7 +48,7 @@ namespace Neuron
             MainWindow window = new MainWindow();
             window.Show();
         }
-        private async Task SelectContact(object sender, RoutedEventArgs e)
+        private async void SelectContact(object sender, RoutedEventArgs e)
         {
             var clickedButton = (Button)sender;
 
@@ -58,7 +59,7 @@ namespace Neuron
             HeadNameLabel.Content = selectContactName;
 
             commands.LoadMessages(MessagesField, MessageField, SendButton);
-            await hubConnection.InvokeAsync("JoinChat", ChooseContact);
+            await hubConnection.InvokeAsync("JoinChat", ChooseContact.ToString());
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -180,18 +181,24 @@ namespace Neuron
         }
         public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage)
         {
-            neuronMain.MessagesField.Items.Add(chatMessage.Sender + "\n \n" + chatMessage.Message + "\n \n" + chatMessage.Time);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                neuronMain.MessagesField.Items.Add(
+                    $"{chatMessage.Sender}\n\n{chatMessage.Message}\n\n{chatMessage.Time}"
+                );
+            });
         }
-        public async Task SendMessage(string MessageText, HubConnection hubConnection)
+        public async void SendMessage(string MessageText, HubConnection hubConnection)
         {
             ChatMessage message = new ChatMessage();
             message.ChatID = NeuronMain.ChooseContact;
             message.Sender = MainWindow.Name;
             message.Message = MessageText;
-            message.Time = DateTime.Now.ToString().Substring(10, 10);
-            message.Date = DateTime.Now.ToString().Substring(0, 10);
+            message.Time = DateTime.Now.ToString("HH:mm");
+            message.Date = DateTime.Now.ToString("dd.MM.yyyy");
 
-            await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
+            MessageBox.Show("Отправляю сообщение с содержанием:" + message.ChatID.ToString() + message.Sender + message.Message + message.Time + message.Date);
+            await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact.ToString(), message);
             using (var connection = db.GetNewConnection()) 
             {
                 connection.Open();
