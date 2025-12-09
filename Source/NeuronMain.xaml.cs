@@ -50,6 +50,8 @@ namespace Neuron
         }
         private async void SelectContact(object sender, RoutedEventArgs e)
         {
+            await hubConnection.InvokeAsync("LeaveChat", ChooseContact.ToString());
+
             var clickedButton = (Button)sender;
 
             string selectContactName = clickedButton.Content.ToString();
@@ -72,7 +74,7 @@ namespace Neuron
             AddGroup window = new AddGroup();
             window.Show();
         }
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void SendMessage(object sender, RoutedEventArgs e)
         {
             commands.SendMessage(MessageField.Text, hubConnection);
             MessageField.Clear();
@@ -197,7 +199,6 @@ namespace Neuron
             message.Time = DateTime.Now.ToString("HH:mm");
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
 
-            MessageBox.Show("Отправляю сообщение с содержанием:" + message.ChatID.ToString() + message.Sender + message.Message + message.Time + message.Date);
             await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact.ToString(), message);
             using (var connection = db.GetNewConnection()) 
             {
