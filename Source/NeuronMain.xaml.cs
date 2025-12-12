@@ -48,10 +48,15 @@ namespace Neuron
             MainWindow window = new MainWindow();
             window.Show();
         }
+        public async Task ConnectChats(List<int> chatid_list)
+        {
+            foreach(int i in chatid_list)
+            {
+                await hubConnection.InvokeAsync("JoinChat", chatid_list[i].ToString());
+            }
+        }
         private async void SelectContact(object sender, RoutedEventArgs e)
         {
-            await hubConnection.InvokeAsync("LeaveChat", ChooseContact.ToString());
-
             var clickedButton = (Button)sender;
 
             string selectContactName = clickedButton.Content.ToString();
@@ -61,7 +66,6 @@ namespace Neuron
             HeadNameLabel.Content = selectContactName;
 
             commands.LoadMessages(MessagesField, MessageField, SendButton);
-            await hubConnection.InvokeAsync("JoinChat", ChooseContact.ToString());
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -99,7 +103,7 @@ namespace Neuron
                 if (answer == MessageBoxResult.Yes)
                 {
                     using var connection = db.GetNewConnection();
-                    using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `Member` = @ME AND `ChatID` = @CI", connection);
+                    using var command = new MySqlCommand(SQL_Injections.LeaveGroup, connection);
                     command.Parameters.AddWithValue("@ME", MainWindow.Login);
                     command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
 
@@ -113,32 +117,17 @@ namespace Neuron
                 if (answer == MessageBoxResult.Yes)
                 {
                     using var connection = db.GetNewConnection();
-                    using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `ChatID` = @CI", connection);
+                    using var command = new MySqlCommand(SQL_Injections.DeleteGroup, connection);
                     command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
 
                     connection.Open();
                     command.ExecuteNonQuery();
 
-                    command.CommandText = "DELETE FROM `MessageBase` WHERE `ChatID` = @CI";
+                    command.CommandText = SQL_Injections.DeleteGroupMessages;
                     command.ExecuteNonQuery();
                 }
             }
         }
-    }
-    public class ContactButton()
-    {
-        public string ButtonName { get; set; }
-        public int ChatID { get; set; }
-        public int Type { get; set; }
-        public int IsAdmin { get; set; }
-    }
-    public class ChatMessage
-    {
-        public int ChatID { get; set; }
-        public string Sender { get; set; }
-        public string Message { get; set; }
-        public string Time { get; set; }
-        public string Date { get; set; }
     }
     public class Commands()
     {
@@ -148,18 +137,13 @@ namespace Neuron
             using DataTable MessageList = new DataTable();
             string CurrentDate = null;
 
-            using (var connection = db.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("SELECT * FROM `MessageBase` WHERE `ChatID` = @CI ORDER BY Date ASC, Time ASC", connection))
-                {
-                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        connection.Open();
-                        adapter.Fill(MessageList);
-                    }
-                }
-            }
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.GetMessages, connection);
+            using var adapter = new MySqlDataAdapter(command);
+
+            command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+            connection.Open();
+            adapter.Fill(MessageList);
 
             MessagesField.Items.Clear();
             if (MessageList.Rows.Count != 0)
@@ -200,48 +184,44 @@ namespace Neuron
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
 
             await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact.ToString(), message);
-            using (var connection = db.GetNewConnection()) 
+
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.SendMessage, connection);
+
+            connection.Open();
+
+            command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
+            command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
+            command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
+            command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
+            command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
+
+            try
             {
-                connection.Open();
-
-                using (var command = new MySqlCommand(
-                    "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )",
-                    connection))
-                {
-                    command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
-                    command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
-                    command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
-                    command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
-                    command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
-
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                command.ExecuteNonQuery();
+            }
+            catch
+            {
+                MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        public void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
+        public async void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
             using DataTable ContactsList = new DataTable();
-            using (var connection = db.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("SELECT * FROM `contactbase` WHERE `Member` = @Username", connection))
-                {
-                    command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        connection.Open();
-                        adapter.Fill(ContactsList);
-                    }
-                }
-            }
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.GetContacts, connection);
+            using var adapter = new MySqlDataAdapter(command);
+
+            command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
+
+            connection.Open();
+            adapter.Fill(ContactsList);
+
+            List<int> chat_list = new List<int>();
+
             for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
+                chat_list.Add(Convert.ToInt16(ContactsList.Rows[i][0]));
                 var contact = new ContactButton
                 {
                     ButtonName = ContactsList.Rows[i][2].ToString(),
@@ -251,10 +231,28 @@ namespace Neuron
                 };
                 chatListBox.Items.Add(contact);
             }
+
+            await neuronMain.ConnectChats(chat_list);
+            
         }
         public void UpdateContacts()
         {
 
         }
+    }
+    public class ContactButton()
+    {
+        public string ButtonName { get; set; }
+        public int ChatID { get; set; }
+        public int Type { get; set; }
+        public int IsAdmin { get; set; }
+    }
+    public class ChatMessage
+    {
+        public int ChatID { get; set; }
+        public string Sender { get; set; }
+        public string Message { get; set; }
+        public string Time { get; set; }
+        public string Date { get; set; }
     }
 }
