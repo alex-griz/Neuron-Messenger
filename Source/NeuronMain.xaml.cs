@@ -87,13 +87,22 @@ namespace Neuron
         {
             if (NeuronMain.clicked.Type == 0)
             {
-                //открытие просмотра профиля пользователя
+                OpenProfileView();
             }
             else
             {
                 MembersList window = new MembersList();
                 window.Show();
             }
+        }
+        private void OpenProfileView(string username = null!)
+        {
+            if (!string.IsNullOrEmpty(username))
+            {
+                username = MainWindow.Login;
+            }
+            ProfileView window = new ProfileView();
+            window.Show();
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
