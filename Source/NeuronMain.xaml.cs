@@ -99,7 +99,11 @@ namespace Neuron
         {
             if (!string.IsNullOrEmpty(username))
             {
-                username = MainWindow.Login;
+                ProfileView.username = MainWindow.Login;
+            }
+            else
+            {
+                ProfileView.username = username;
             }
             ProfileView window = new ProfileView();
             window.Show();

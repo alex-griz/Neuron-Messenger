@@ -1,27 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MySql.Data.MySqlClient;
+using System.Data;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Neuron
 {
-    /// <summary>
-    /// Логика взаимодействия для ProfileView.xaml
-    /// </summary>
     public partial class ProfileView : Window
     {
+        public static string username = "";
         public ProfileView()
         {
             InitializeComponent();
+
+            LoadData();
+        }
+        private void LoadData()
+        {
+            DataBase db = new DataBase();
+            DataTable profileTable = new DataTable();
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.LoadProfile, connection);
+            using var adapter = new MySqlDataAdapter(command);
+
+            connection.Open();
+            adapter.Fill(profileTable);
+
+            UsernameBox.Text = username;
+            NameBox.Text = profileTable.Rows[0][1].ToString();
+            BioBox.Text = profileTable.Rows[0][2].ToString();
+
+            if (username != MainWindow.Login)
+            {
+                UsernameBox.IsReadOnly = true;
+                NameBox.IsReadOnly = true;
+                BioBox.IsReadOnly = true;
+                SaveButton.Visibility = Visibility.Hidden;
+            }
+        }
+        private void SaveProfile(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -14,8 +14,9 @@
             </LinearGradientBrush>
         </Canvas.Background>
         <TextBox x:Name="NameBox" Canvas.Left="100" TextWrapping="Wrap" Text="TextBox" Canvas.Top="207" Width="200" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
-        <TextBox x:Name="BioBox" Canvas.Left="100" TextWrapping="Wrap" Text="TextBox" Canvas.Top="255" Width="200" HorizontalAlignment="Center" Height="120" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
-        <Image Height="128" Canvas.Left="200" Canvas.Top="59" Width="128" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+        <TextBox x:Name="BioBox" Canvas.Left="100" TextWrapping="Wrap" Text="TextBox" Canvas.Top="282" Width="200" HorizontalAlignment="Center" Height="120" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
+        <Button x:Name="SaveButton" Content="Сохранить" Canvas.Left="150" Canvas.Top="424" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="30" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"/>
+        <TextBox x:Name="UsernameBox" Canvas.Left="100" TextWrapping="Wrap" Text="TextBox" Canvas.Top="242" Width="120" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="14"/>
 
     </Canvas>
 </Window>

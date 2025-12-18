@@ -8,5 +8,7 @@
         public static readonly string LeaveGroup = "DELETE FROM `ContactBase` WHERE `Member` = @ME AND `ChatID` = @CI";
         public static readonly string DeleteGroup = "DELETE FROM `ContactBase` WHERE `ChatID` = @CI";
         public static readonly string DeleteGroupMessages = "DELETE FROM `MessageBase` WHERE `ChatID` = @CI";
+        public static readonly string LoadProfile = "SELECT * FROM `ProfileBase` WHERE `Username` = @UN";
+        public static readonly string SaveProfile = "";
     }
 }
