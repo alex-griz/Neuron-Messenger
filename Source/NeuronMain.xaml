@@ -39,7 +39,7 @@
             </Expander>
             <Expander Height="123" Header="Настройки" Canvas.Top="20" Width="110" FontFamily="Bahnschrift Light Condensed" FontSize="24" Foreground="White" HorizontalAlignment="Center" Canvas.Left="10" VerticalAlignment="Top">
                 <StackPanel>
-                    <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Профиль" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}" Click="OpenProfileView"></Button>
+                    <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Профиль" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}" Click="OpenProfileEditor"></Button>
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
                     <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Выйти" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}" Click="LogOut"></Button>
                 </StackPanel>

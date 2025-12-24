@@ -22,7 +22,6 @@ namespace Neuron
         public NeuronMain()
         {
             InitializeComponent();
-            commands.LoadContacts(this, ChatList);
 
             hubConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5156/chatHub")
@@ -37,6 +36,8 @@ namespace Neuron
                 }
             });
             hubConnection.StartAsync();
+
+            commands.LoadContacts(this, ChatList);
         }
         private void LogOut(object sender, RoutedEventArgs e)
         {
@@ -52,7 +53,7 @@ namespace Neuron
         {
             foreach(int i in chatid_list)
             {
-                await hubConnection.InvokeAsync("JoinChat", chatid_list[i].ToString());
+                await hubConnection.InvokeAsync("JoinChat", i.ToString());
             }
         }
         private async void SelectContact(object sender, RoutedEventArgs e)
@@ -95,18 +96,15 @@ namespace Neuron
                 window.Show();
             }
         }
-        private void OpenProfileView(string username = null!)
+        private void OpenProfileEditor(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(username))
-            {
-                ProfileView.username = MainWindow.Login;
-            }
-            else
-            {
-                ProfileView.username = username;
-            }
+            ProfileView.username = MainWindow.Login;
             ProfileView window = new ProfileView();
             window.Show();
+        }
+        private void OpenProfileView()
+        {
+            
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
@@ -246,7 +244,6 @@ namespace Neuron
             }
 
             await neuronMain.ConnectChats(chat_list);
-            
         }
         public void UpdateContacts()
         {
