@@ -31,29 +31,32 @@ namespace Neuron
             Username = UsernameBox.Text;
             string Password = PasswordBox.Password;
 
-            using(var connection = DB.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)",
-                    connection))
-                {
-                    command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;
-                    command.Parameters.Add("@Name", MySqlDbType.VarChar).Value = Name;
-                    command.Parameters.Add("@Password", MySqlDbType.VarChar).Value = Password;
+            using var connection = DB.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.AddAccount, connection);
 
-                    if (Check())
-                    {
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                        MessageBox.Show("Успешная регистрация!", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Такое имя пользователя уже существует! Придумайте другое", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                    }
-                }
+
+            command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = Username;
+            command.Parameters.Add("@Name", MySqlDbType.VarChar).Value = Name;
+            command.Parameters.Add("@Password", MySqlDbType.VarChar).Value = Password;
+
+            if (Check())
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+
+                command.CommandText = SQL_Injections.AddProfileData;
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("@UN", Username);
+                command.Parameters.AddWithValue("@N", Name);
+
+                command.ExecuteNonQuery();
+
+                MessageBox.Show("Успешная регистрация!", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Information);
             }
-   
-            
+            else
+            {
+                MessageBox.Show("Такое имя пользователя уже существует! Придумайте другое", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+            }
         }
         private bool Check()
         {

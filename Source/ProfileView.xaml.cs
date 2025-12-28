@@ -21,6 +21,8 @@ namespace Neuron
             using var command = new MySqlCommand(SQL_Injections.LoadProfile, connection);
             using var adapter = new MySqlDataAdapter(command);
 
+            command.Parameters.AddWithValue("@UN", username);
+
             connection.Open();
             adapter.Fill(profileTable);
 
