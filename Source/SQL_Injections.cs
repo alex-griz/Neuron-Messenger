@@ -9,7 +9,7 @@
         public static readonly string DeleteGroup = "DELETE FROM `ContactBase` WHERE `ChatID` = @CI";
         public static readonly string DeleteGroupMessages = "DELETE FROM `MessageBase` WHERE `ChatID` = @CI";
         public static readonly string LoadProfile = "SELECT * FROM `ProfileBase` WHERE `Username` = @UN";
-        public static readonly string SaveProfile = "UPDATE `ProfileBase` SET `Username` = @UN ,`Name` = @N , `Description` = @D WHERE `UserID`= @UI";
+        public static readonly string SaveProfile = "UPDATE `ProfileBase` SET `Username` = @UN ,`Name` = @U , `Description` = @D WHERE `UserID`= @UI";
         public static readonly string SaveLoginData = "UPDATE `AuthBase` SET `Username` = @UN, `Name`= @U WHERE `UserID` = @UI";
         public static readonly string AddAccount = "INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)";
         public static readonly string AddProfileData = "INSERT INTO `ProfileBase` (`Username`, `Name`) VALUES (@UN , @N)";

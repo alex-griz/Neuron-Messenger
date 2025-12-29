@@ -43,21 +43,18 @@ namespace Neuron
             DataBase db = new DataBase();
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand(SQL_Injections.SaveProfile, connection);
+
+            command.Parameters.AddWithValue("@UN", UsernameBox.Text);
+            command.Parameters.AddWithValue("@U", NameBox.Text);
+            command.Parameters.AddWithValue("@D", BioBox.Text);
+            command.Parameters.AddWithValue("@UI", null);
             try
             {
                 connection.Open();
                 command.ExecuteNonQuery();
 
-                command.CommandText = SQL_Injections.SaveLoginData;
-
-                command.Parameters.AddWithValue("@UN", UsernameBox.Text);
-                command.Parameters.AddWithValue("@N", NameBox.Text);
-                command.Parameters.AddWithValue("@D", BioBox.Text);
-                command.Parameters.AddWithValue("@UI", null);
-                command.ExecuteNonQuery();
-
-                command.CommandText = SQL_Injections.SaveLoginData;
-                command.ExecuteNonQuery();
+                //command.CommandText = SQL_Injections.SaveLoginData;
+                //command.ExecuteNonQuery();
             }
             catch
             {
