@@ -143,10 +143,10 @@ namespace Neuron
     public class Commands()
     {
         private DataBase db = new DataBase();
+        private string CurrentDate;
         public async Task LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
         {
             using DataTable MessageList = new DataTable();
-            string CurrentDate = null;
 
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand(SQL_Injections.GetMessages, connection);
@@ -178,6 +178,14 @@ namespace Neuron
         }
         public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage)
         {
+            if (chatMessage.Date != CurrentDate)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        neuronMain.MessagesField.Items.Add(chatMessage.Date);
+                    });
+                CurrentDate = chatMessage.Date;
+            }
             Application.Current.Dispatcher.Invoke(() =>
             {
                 neuronMain.MessagesField.Items.Add(

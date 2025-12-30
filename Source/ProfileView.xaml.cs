@@ -27,8 +27,8 @@ namespace Neuron
             adapter.Fill(profileTable);
 
             UsernameBox.Text = username;
-            NameBox.Text = profileTable.Rows[0][2].ToString();
-            BioBox.Text = profileTable.Rows[0][3].ToString();
+            NameBox.Text = profileTable.Rows[0][1].ToString();
+            BioBox.Text = profileTable.Rows[0][2].ToString();
 
             if (username != MainWindow.Login)
             {
@@ -47,14 +47,14 @@ namespace Neuron
             command.Parameters.AddWithValue("@UN", UsernameBox.Text);
             command.Parameters.AddWithValue("@U", NameBox.Text);
             command.Parameters.AddWithValue("@D", BioBox.Text);
-            command.Parameters.AddWithValue("@UI", null);
+            command.Parameters.AddWithValue("@UI", MainWindow.Login);
             try
             {
                 connection.Open();
                 command.ExecuteNonQuery();
 
-                //command.CommandText = SQL_Injections.SaveLoginData;
-                //command.ExecuteNonQuery();
+                command.CommandText = SQL_Injections.SaveLoginData;
+                command.ExecuteNonQuery();
             }
             catch
             {

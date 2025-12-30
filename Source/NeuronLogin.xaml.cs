@@ -17,7 +17,6 @@ namespace Neuron
 {
     public partial class MainWindow : Window
     {
-        public int ChatCounter;
         public static string Login;
         public static string Name;
         public MainWindow()
