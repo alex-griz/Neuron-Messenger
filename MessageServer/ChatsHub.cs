@@ -1,34 +1,42 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Concurrent;
 
 namespace NeuronServer.Hubs;
 
 public class ChatHub: Hub
 {
-    public override async Task OnConnectedAsync() //подключение клиента в хаб
+    public static ConcurrentDictionary<string , string> connections = new();
+    public override async Task OnConnectedAsync() 
     {
+        var username = Context.GetHttpContext().Request.Query["username"];
+        connections[Context.ConnectionId] = username!;
+        
         await base.OnConnectedAsync();
+        await Groups.AddToGroupAsync(Context.ConnectionId, username!);
+        UserCache.OnlineStatus[username!] = true;
+
         Console.WriteLine("User connected");
     }
-    public override async Task OnDisconnectedAsync(Exception exception) //отключение клиента из хаба
+    public override async Task OnDisconnectedAsync(Exception exception) 
     {
+        var username = connections[Context.ConnectionId];
+
         await base.OnDisconnectedAsync(exception);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, username);
+        UserCache.OnlineStatus[username] = false;
+
         Console.WriteLine("User Disconnected");
     }
-    public async Task JoinChat(string ChatId) //присоединение пользователя в группу, создание группы
+    public async Task SendMessage(int ChatId, ChatMessage message)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, ChatId);
-        Console.WriteLine("User joined the Chat");
-    }
-    public async Task LeaveChat(string ChatId) //удаление пользователя из группы
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChatId);
-        Console.WriteLine("User left the chat");
-    }
-    public async Task SendMessage(string ChatId, ChatMessage message) //отправка сообщения в выбранную группу
-    {
-        await Clients.Group(ChatId).SendAsync("GetMessage", message);
-        Console.WriteLine("Message Sent to group");
+        foreach(string member in UserCache.ChatMembers[ChatId])
+        {
+            if (UserCache.OnlineStatus[member])
+            {
+                await Clients.Group(member).SendAsync("GetMessage", message);
+            }
+        }
     }
 }
 public class ChatMessage

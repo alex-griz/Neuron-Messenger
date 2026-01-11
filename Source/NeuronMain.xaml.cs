@@ -24,7 +24,7 @@ namespace Neuron
             InitializeComponent();
 
             hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5156/chatHub")
+                .WithUrl("http://localhost:5156/chatHub?username="+ MainWindow.Login)
                 .WithAutomaticReconnect()
                 .Build();
 
@@ -41,20 +41,13 @@ namespace Neuron
         }
         private void LogOut(object sender, RoutedEventArgs e)
         {
-            MainWindow.Login = null;
-            string json = null;
+            MainWindow.Login = "";
+            string json = "";
             File.WriteAllText("SavedLoginData.json", json);
 
             this.Close();
             MainWindow window = new MainWindow();
             window.Show();
-        }
-        public async Task ConnectChats(List<int> chatid_list)
-        {
-            foreach(int i in chatid_list)
-            {
-                await hubConnection.InvokeAsync("JoinChat", i.ToString());
-            }
         }
         private async void SelectContact(object sender, RoutedEventArgs e)
         {
@@ -202,7 +195,7 @@ namespace Neuron
             message.Time = DateTime.Now.ToString("HH:mm");
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
 
-            await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact.ToString(), message);
+            await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
 
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand(SQL_Injections.SendMessage, connection);
@@ -240,7 +233,6 @@ namespace Neuron
 
             for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                chat_list.Add(Convert.ToInt16(ContactsList.Rows[i][0]));
                 var contact = new ContactButton
                 {
                     ButtonName = ContactsList.Rows[i][2].ToString(),
@@ -250,8 +242,6 @@ namespace Neuron
                 };
                 chatListBox.Items.Add(contact);
             }
-
-            await neuronMain.ConnectChats(chat_list);
         }
         public void UpdateContacts()
         {

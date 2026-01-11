@@ -5,7 +5,7 @@ namespace NeuronServer
 {
     public class Program
     {
-        public static void Main()
+        public static async Task Main()
         {
             var builder = WebApplication.CreateBuilder();
 
@@ -26,6 +26,8 @@ namespace NeuronServer
             app.UseRouting();
             app.UseCors("AllowAll");
             app.MapHub<ChatHub>("/chatHub");
+
+            await UserCache.LoadUsersData();
             
             app.Run();
         }
