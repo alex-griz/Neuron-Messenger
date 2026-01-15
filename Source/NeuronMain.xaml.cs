@@ -97,7 +97,25 @@ namespace Neuron
         }
         private void OpenProfileView()
         {
-            
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.LoadMembers, connection);
+            command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
+            using var adapter = new MySqlDataAdapter(command);
+            using DataTable members = new DataTable();
+
+            connection.Open();
+            adapter.Fill(members);
+
+            if(members.Rows[0][0] != MainWindow.Login)
+            {
+                ProfileView.username = members.Rows[0][0].ToString();
+            }
+            else
+            {
+                ProfileView.username = members.Rows[1][0].ToString();
+            }
+            ProfileView window = new ProfileView();
+            window.Show();
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {

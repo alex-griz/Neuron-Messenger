@@ -13,5 +13,6 @@
         public static readonly string SaveLoginData = "UPDATE `AuthBase` SET `Username` = @UN, `Name`= @U WHERE `Username` = @UI";
         public static readonly string AddAccount = "INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)";
         public static readonly string AddProfileData = "INSERT INTO `ProfileBase` (`Username`, `Name`) VALUES (@UN , @N)";
+        public static readonly string LoadMembers = "SELECT `Member` FROM `contactbase` WHERE `ChatID` = @CI";
     }
 }

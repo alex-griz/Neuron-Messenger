@@ -97,7 +97,7 @@ namespace Neuron
             using DataTable ContactsList = new DataTable();
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("SELECT `Member` FROM `contactbase` WHERE `ChatID` = @CI", connection))
+                using (var command = new MySqlCommand(SQL_Injections.LoadMembers, connection))
                 {
                     command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
                     using (var adapter = new MySqlDataAdapter(command))
