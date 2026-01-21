@@ -21,7 +21,7 @@ namespace Neuron
     public partial class MembersList : Window
     {
         DataBase db = new DataBase();
-        private ObservableCollection<CheckItem> users = new ObservableCollection<CheckItem>();
+        public static ObservableCollection<CheckItem> users = new ObservableCollection<CheckItem>();
         public MembersList()
         {
             InitializeComponent();
@@ -93,25 +93,6 @@ namespace Neuron
         }
         private void LoadContacts()
         {
-            users.Clear();
-            using DataTable ContactsList = new DataTable();
-            using (var connection = db.GetNewConnection())
-            {
-                using (var command = new MySqlCommand(SQL_Injections.LoadMembers, connection))
-                {
-                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        connection.Open();
-                        adapter.Fill(ContactsList);
-                    }
-                }
-            }
-            foreach(DataRow row in ContactsList.Rows)
-            {
-                users.Add(new CheckItem { Name = row[0].ToString(), IsSelected = false });
-            }
-
             MembersListBox.ItemsSource = users;
         }
 

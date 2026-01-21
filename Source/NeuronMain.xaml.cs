@@ -1,10 +1,13 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using MySql.Data.MySqlClient;
+using System.Collections.Concurrent;
 using System.Data;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.IO;
-using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Tasks;
+using Microsoft.Toolkit.Uwp.Notifications;
+using System.Windows.Controls.Primitives;
 
 namespace Neuron
 {
@@ -14,6 +17,8 @@ namespace Neuron
         public static string ChooseChatName;
         public static ContactButton clicked = null;
         private static HubConnection hubConnection;
+        public ConcurrentDictionary<int, ChatData> chatCache= new();
+        //public ConcurrentDictionary<string, UserData> userCache = new();
 
         DataBase db = new DataBase();
 
@@ -34,9 +39,12 @@ namespace Neuron
                 {
                     commands.UpdateMessages(this, message);
                 }
+                else
+                {
+                    MessageBox.Show(message.Sender+message.Message, chatCache[message.ChatID].Name, MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             });
             hubConnection.StartAsync();
-
             commands.LoadContacts(this, ChatList);
         }
         private void LogOut(object sender, RoutedEventArgs e)
@@ -59,7 +67,8 @@ namespace Neuron
             ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
 
-            commands.LoadMessages(MessagesField, MessageField, SendButton);
+            commands.LoadMembers(this);
+            await commands.LoadMessages(this);
         }
 
         private void Add_Contact(object sender, RoutedEventArgs e)
@@ -155,7 +164,7 @@ namespace Neuron
     {
         private DataBase db = new DataBase();
         private string CurrentDate;
-        public async Task LoadMessages(ListBox MessagesField, TextBox messageField, Button sendButton)
+        public async Task LoadMessages(NeuronMain neuronMain)
         {
             using DataTable MessageList = new DataTable();
 
@@ -167,22 +176,25 @@ namespace Neuron
             connection.Open();
             adapter.Fill(MessageList);
 
-            MessagesField.Items.Clear();
+            neuronMain.MessagesField.Items.Clear();
             if (MessageList.Rows.Count != 0)
             {
                 CurrentDate = MessageList.Rows[0][4].ToString();
-                MessagesField.Items.Add(CurrentDate);
+                neuronMain.MessagesField.Items.Add(CurrentDate);
                 for (int i = 0; i < MessageList.Rows.Count; i++)
                 {
+                    string sender = MessageList.Rows[i][1].ToString();
+                    string message = MessageList.Rows[i][2].ToString();
+                    string time = MessageList.Rows[i][3].ToString();
                     if (MessageList.Rows[i][4].ToString() == CurrentDate)
                     {
-                        MessagesField.Items.Add(MessageList.Rows[i][1] + "\n \n" + MessageList.Rows[i][2] + "\n \n" + MessageList.Rows[i][3].ToString());
+                        neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
                     else
                     {
                         CurrentDate = MessageList.Rows[i][4].ToString();
-                        MessagesField.Items.Add(CurrentDate);
-                        MessagesField.Items.Add(MessageList.Rows[i][1] + "\n \n" + MessageList.Rows[i][2] + "\n \n" + MessageList.Rows[i][3].ToString());
+                        neuronMain.MessagesField.Items.Add(CurrentDate);
+                        neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
                 }
             }
@@ -200,7 +212,7 @@ namespace Neuron
             Application.Current.Dispatcher.Invoke(() =>
             {
                 neuronMain.MessagesField.Items.Add(
-                    $"{chatMessage.Sender}\n\n{chatMessage.Message}\n\n{chatMessage.Time}"
+                    $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{chatMessage.Message}\n\n{chatMessage.Time}"
                 );
             });
         }
@@ -208,7 +220,7 @@ namespace Neuron
         {
             ChatMessage message = new ChatMessage();
             message.ChatID = NeuronMain.ChooseContact;
-            message.Sender = MainWindow.Name;
+            message.Sender = MainWindow.Login;
             message.Message = MessageText;
             message.Time = DateTime.Now.ToString("HH:mm");
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
@@ -251,19 +263,45 @@ namespace Neuron
 
             for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
+                string name = ContactsList.Rows[i][2].ToString();
+                int ChatID = Convert.ToInt32(ContactsList.Rows[i][0]);
+                int type = Convert.ToInt16(ContactsList.Rows[i][3]);
+                int IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4]);
+
+                neuronMain.chatCache[ChatID] = new ChatData
+                {
+                    Name = name,
+                    Type = type,
+                    ImagePath = null
+                };
                 var contact = new ContactButton
                 {
-                    ButtonName = ContactsList.Rows[i][2].ToString(),
-                    ChatID = Convert.ToInt32(ContactsList.Rows[i][0]),
-                    Type = Convert.ToInt16(ContactsList.Rows[i][3]),
-                    IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4])
+                    ButtonName = name,
+                    ChatID = ChatID,
+                    Type = type,
+                    IsAdmin = IsAdmin
                 };
                 chatListBox.Items.Add(contact);
             }
         }
-        public void UpdateContacts()
+        public async void LoadMembers(NeuronMain neuronMain)
         {
+            MembersList.users.Clear();
 
+            using DataTable table = new DataTable();
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand(SQL_Injections.LoadMembers, connection);
+            using var adapter = new MySqlDataAdapter(command);
+
+            command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact;
+
+            connection.Open();
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+
+            }
         }
     }
     public class ContactButton()
@@ -280,5 +318,11 @@ namespace Neuron
         public string Message { get; set; }
         public string Time { get; set; }
         public string Date { get; set; }
+    }
+    public class ChatData()
+    {
+        public string Name { get; set; }
+        public int Type { get; set; }
+        public string ImagePath { get; set; }
     }
 }
