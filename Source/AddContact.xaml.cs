@@ -45,32 +45,29 @@ namespace Neuron
                 DataView dataView = dataTable.DefaultView;
                 dataTable = dataView.ToTable();
 
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `Type`, `IsAdmin`) "+
-                "VALUES (@CI , @ME, @CN, @TY, @IA)", connection))
+                try
                 {
-                    try
-                    {
-                        command.Parameters.Add("@CI", MySqlDbType.VarChar).Value =
+                    using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) VALUES (@CI , @ME, @R)", connection);
+                    command.Parameters.Add("@CI", MySqlDbType.Int16).Value =
                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
-                        command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
-                        command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
-                        command.Parameters.Add("@TY", MySqlDbType.Int16).Value = 0;
-                        command.Parameters.Add("@IA", MySqlDbType.Int16 ).Value = 1;
+                    command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    command.Parameters.Add("@R", MySqlDbType.Int16).Value = 1;
 
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                    connection.Open();
+                    command.ExecuteNonQuery();
 
-                        command.Parameters["@ME"].Value = Username;
-                        command.Parameters["@CN"].Value = MainWindow.Name;
-                        command.ExecuteNonQuery();
+                    command.Parameters["@ME"].Value = Username;
+                    command.ExecuteNonQuery();
 
-                        this.Close();
-                        MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Такого пользователя не существует!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                    }
+                    command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo` , `Type`) VALUES (@CI, NULL, NULL, NULL, 0)";
+                    command.ExecuteNonQuery();
+
+                    this.Close();
+                    MessageBox.Show("Контакт успешно добавлен!", "Новый контакт", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch
+                {
+                    MessageBox.Show("Такого пользователя не существует!", "Новый контакт", MessageBoxButton.OKCancel, MessageBoxImage.Error);
                 }
             }
         }

@@ -186,7 +186,7 @@ namespace Neuron
                     string sender = MessageList.Rows[i][1].ToString();
                     string message = MessageList.Rows[i][2].ToString();
                     string time = MessageList.Rows[i][3].ToString();
-                    if (MessageList.Rows[i][4].ToString() == CurrentDate)
+                    if (MessageList.Rows[i][4].ToString() == CurrentDate) //здесь и далее работа с кешем и отображением сообщений в процессе
                     {
                         neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
@@ -263,7 +263,7 @@ namespace Neuron
 
             for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                string name = ContactsList.Rows[i][2].ToString();
+                string name = ContactsList.Rows[i][2].ToString();    //тоже в процессе
                 int ChatID = Convert.ToInt32(ContactsList.Rows[i][0]);
                 int type = Convert.ToInt16(ContactsList.Rows[i][3]);
                 int IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4]);

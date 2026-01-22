@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using MySql.Data.MySqlClient;
 
 namespace Neuron
@@ -29,14 +17,12 @@ namespace Neuron
 
             using (var connection = db.GetNewConnection())
             {
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `Type`, `IsAdmin`) VALUES" +
-                    "(@CI , @ME, @CN, @TY, @IA)", connection))
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) VALUES" +
+                    "(@CI , @ME, @R)", connection))
                 {
-                    command.Parameters.Add("@CI", MySqlDbType.VarChar).Value = NeuronMain.ChooseContact.ToString();
+                    command.Parameters.Add("@CI", MySqlDbType.Int16).Value = NeuronMain.ChooseContact;
                     command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = Username;
-                    command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = NeuronMain.ChooseChatName;
-                    command.Parameters.Add("@TY", MySqlDbType.Int16).Value = 1;
-                    command.Parameters.Add("@IA", MySqlDbType.Int16).Value =0;
+                    command.Parameters.Add("@R", MySqlDbType.Int16).Value =0;
                     try
                     {
                         connection.Open();

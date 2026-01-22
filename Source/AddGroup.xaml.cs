@@ -1,18 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Neuron
 {
@@ -41,19 +29,21 @@ namespace Neuron
                 DataView dataView = dataTable.DefaultView;
                 dataTable = dataView.ToTable();
 
-                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `ChatName`, `Type`, `IsAdmin`) " +
-                "VALUES (@CI , @ME, @CN, @TY, @IA)", connection))
+                using (var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) " +
+                "VALUES (@CI , @ME, @R)", connection))
                 {
                     try
                     {
                         command.Parameters.Add("@CI", MySqlDbType.VarChar).Value =
                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
                         command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
-                        command.Parameters.Add("@CN", MySqlDbType.VarChar).Value = ChatName;
-                        command.Parameters.Add("@TY", MySqlDbType.Int16).Value = 1;
-                        command.Parameters.Add("@IA", MySqlDbType.Int16).Value = 1;
+                        command.Parameters.Add("@R", MySqlDbType.Int16).Value = 1;
 
                         connection.Open();
+                        command.ExecuteNonQuery();
+
+                        command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo`, `Type`) VALUES (@CI, @CN, NULL, NULL, 1)";
+                        command.Parameters.AddWithValue("@CN", ChatName);
                         command.ExecuteNonQuery();
 
                         this.Close();
@@ -61,7 +51,7 @@ namespace Neuron
                     }
                     catch
                     {
-                        MessageBox.Show("Ошибка при создании группы!!", "Новая группа", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                        MessageBox.Show("Ошибка при создании группы!", "Новая группа", MessageBoxButton.OKCancel, MessageBoxImage.Error);
                     }
                 }
             }

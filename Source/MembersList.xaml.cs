@@ -51,9 +51,9 @@ namespace Neuron
                 var SelectedUsers = users.Where(u => u.IsSelected).Select(u => u.Name).ToArray();
                 using (var connection = db.GetNewConnection())
                 {
-                    using (var command = new MySqlCommand("UPDATE `contactbase` SET `IsAdmin` = 1 WHERE `ChatID` = @CI AND `Member` = @ME", connection))
+                    using (var command = new MySqlCommand("UPDATE `contactbase` SET `Role` = 1 WHERE `ChatID` = @CI AND `Member` = @ME", connection))
                     {
-                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
+                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact);
                         command.Parameters.Add("@ME", MySqlDbType.VarChar);
                         connection.Open();
                         foreach(string username  in SelectedUsers)
@@ -78,7 +78,7 @@ namespace Neuron
                 {
                     using (var command = new MySqlCommand("DELETE FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection))
                     {
-                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
+                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact);
                         command.Parameters.Add("@ME", MySqlDbType.VarChar);
                         connection.Open();
 
@@ -100,7 +100,7 @@ namespace Neuron
         {
             string NewChatName = NameBox.Text;
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("UPDATE `ContactBase` SET `ChatName` = @CN WHERE `ChatID` = @CI", connection);
+            using var command = new MySqlCommand("UPDATE `ChatBase` SET `ChatName` = @CN WHERE `ChatID` = @CI", connection);
   
             command.Parameters.AddWithValue("@CN", NewChatName);
             command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
