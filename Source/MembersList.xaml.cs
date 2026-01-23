@@ -28,7 +28,7 @@ namespace Neuron
             NameBox.Text = NeuronMain.ChooseChatName;
             LoadContacts();
         }
-        private void AddMember(object sender, RoutedEventArgs e)
+        /*private void AddMember(object sender, RoutedEventArgs e)
         {
             if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
             {
@@ -90,7 +90,7 @@ namespace Neuron
                     }
                 }
             }
-        }
+        }*/
         private void LoadContacts()
         {
             MembersListBox.ItemsSource = users;

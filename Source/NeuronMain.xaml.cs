@@ -18,7 +18,7 @@ namespace Neuron
         public static ContactButton clicked = null;
         private static HubConnection hubConnection;
         public ConcurrentDictionary<int, ChatData> chatCache= new();
-        //public ConcurrentDictionary<string, UserData> userCache = new();
+        public ConcurrentDictionary<string, UserData> userCache = new();
 
         DataBase db = new DataBase();
 
@@ -128,7 +128,7 @@ namespace Neuron
         }
         private void DeleteChat(object sender, RoutedEventArgs e)
         {
-            if (clicked.IsAdmin == 0)
+            /*if (clicked.IsAdmin == 0)
             {
                 var answer = MessageBox.Show("Вы действительно хотите покинуть этот чат? Вы снова сможете присоединиться к ней", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (answer == MessageBoxResult.Yes)
@@ -157,7 +157,7 @@ namespace Neuron
                     command.CommandText = SQL_Injections.DeleteGroupMessages;
                     command.ExecuteNonQuery();
                 }
-            }
+            }*/
         }
     }
     public class Commands()
@@ -186,7 +186,7 @@ namespace Neuron
                     string sender = MessageList.Rows[i][1].ToString();
                     string message = MessageList.Rows[i][2].ToString();
                     string time = MessageList.Rows[i][3].ToString();
-                    if (MessageList.Rows[i][4].ToString() == CurrentDate) //здесь и далее работа с кешем и отображением сообщений в процессе
+                    if (MessageList.Rows[i][4].ToString() == CurrentDate) 
                     {
                         neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
@@ -259,27 +259,23 @@ namespace Neuron
             connection.Open();
             adapter.Fill(ContactsList);
 
-            List<int> chat_list = new List<int>();
-
             for (int i = 0; i < ContactsList.Rows.Count; i++)
             {
-                string name = ContactsList.Rows[i][2].ToString();    //тоже в процессе
+                string name = ContactsList.Rows[i][1].ToString();
                 int ChatID = Convert.ToInt32(ContactsList.Rows[i][0]);
-                int type = Convert.ToInt16(ContactsList.Rows[i][3]);
-                int IsAdmin = Convert.ToInt16(ContactsList.Rows[i][4]);
+                int type = Convert.ToInt16(ContactsList.Rows[i][2]);
 
                 neuronMain.chatCache[ChatID] = new ChatData
                 {
                     Name = name,
                     Type = type,
-                    ImagePath = null
+                    ImagePath = ""
                 };
                 var contact = new ContactButton
                 {
-                    ButtonName = name,
+                    Name = name,
                     ChatID = ChatID,
-                    Type = type,
-                    IsAdmin = IsAdmin
+                    Type = type
                 };
                 chatListBox.Items.Add(contact);
             }
@@ -300,16 +296,20 @@ namespace Neuron
 
             foreach (DataRow row in table.Rows)
             {
+                string username = row[0].ToString();
+                string name = row[1].ToString();
+                neuronMain.userCache[username].Name = name;
+                neuronMain.userCache[username].ImagePath = "";
 
+                MembersList.users.Add(new CheckItem { Name = username, IsSelected = false });
             }
         }
     }
     public class ContactButton()
     {
-        public string ButtonName { get; set; }
+        public string Name { get; set; }
         public int ChatID { get; set; }
         public int Type { get; set; }
-        public int IsAdmin { get; set; }
     }
     public class ChatMessage
     {
@@ -323,6 +323,11 @@ namespace Neuron
     {
         public string Name { get; set; }
         public int Type { get; set; }
+        public string ImagePath { get; set; }
+    }
+    public class UserData()
+    {
+        public string Name { get; set; }
         public string ImagePath { get; set; }
     }
 }
