@@ -3,11 +3,8 @@ using MySql.Data.MySqlClient;
 using System.Collections.Concurrent;
 using System.Data;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Toolkit.Uwp.Notifications;
-using System.Windows.Controls.Primitives;
 
 namespace Neuron
 {
@@ -44,6 +41,7 @@ namespace Neuron
                     MessageBox.Show(message.Sender+message.Message, chatCache[message.ChatID].Name, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             });
+
             hubConnection.StartAsync();
             commands.LoadContacts(this, ChatList);
         }
@@ -249,21 +247,25 @@ namespace Neuron
         }
         public async void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
-            using DataTable ContactsList = new DataTable();
+            using DataTable GroupContactsList = new DataTable();
+            using DataTable UserContsctsList = new DataTable();
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand(SQL_Injections.GetContacts, connection);
+            using var command = new MySqlCommand(SQL_Injections.GetGroupContacts, connection);
             using var adapter = new MySqlDataAdapter(command);
 
             command.Parameters.Add("@Username", MySqlDbType.VarChar).Value = MainWindow.Login;
 
             connection.Open();
-            adapter.Fill(ContactsList);
+            adapter.Fill(GroupContactsList);
 
-            for (int i = 0; i < ContactsList.Rows.Count; i++)
+            command.CommandText = SQL_Injections.GetUserContacts;
+            adapter.Fill(UserContsctsList);
+
+            for (int i = 0; i < GroupContactsList.Rows.Count; i++)
             {
-                string name = ContactsList.Rows[i][1].ToString();
-                int ChatID = Convert.ToInt32(ContactsList.Rows[i][0]);
-                int type = Convert.ToInt16(ContactsList.Rows[i][2]);
+                string name = GroupContactsList.Rows[i][1].ToString();
+                int ChatID = Convert.ToInt32(GroupContactsList.Rows[i][0]);
+                int type = Convert.ToInt16(GroupContactsList.Rows[i][2]);
 
                 neuronMain.chatCache[ChatID] = new ChatData
                 {
@@ -278,6 +280,25 @@ namespace Neuron
                     Type = type
                 };
                 chatListBox.Items.Add(contact);
+            }
+            for (int i =0; i<UserContsctsList.Rows.Count; i++)
+            {
+                string name = UserContsctsList.Rows[i][1].ToString();
+                int ChatID = Convert.ToInt32(UserContsctsList.Rows[i][0]);
+                int type = 0;
+
+                neuronMain.chatCache[ChatID] = new ChatData
+                {
+                    Name = name,
+                    Type = type,
+                    ImagePath = ""
+                };
+                var contact = new ContactButton
+                {
+                    Name = name,
+                    ChatID = ChatID,
+                    Type = type
+                };
             }
         }
         public async void LoadMembers(NeuronMain neuronMain)

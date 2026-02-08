@@ -1,21 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Neuron
 {
@@ -47,16 +32,18 @@ namespace Neuron
 
                 try
                 {
-                    using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) VALUES (@CI , @ME, @R)", connection);
+                    using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`,`SecondMember`, `Role`) VALUES (@CI , @ME,@SM, @R)", connection);
                     command.Parameters.Add("@CI", MySqlDbType.Int16).Value =
                            Convert.ToInt32(dataTable.Rows[dataTable.Rows.Count - 1][0]) + 1;
                     command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = MainWindow.Login;
+                    command.Parameters.Add("@SM", MySqlDbType.VarChar).Value = Username;
                     command.Parameters.Add("@R", MySqlDbType.Int16).Value = 1;
 
                     connection.Open();
                     command.ExecuteNonQuery();
 
                     command.Parameters["@ME"].Value = Username;
+                    command.Parameters["@SM"].Value = MainWindow.Login;
                     command.ExecuteNonQuery();
 
                     command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo` , `Type`) VALUES (@CI, NULL, NULL, NULL, 0)";
