@@ -7,6 +7,7 @@ namespace NeuronServer.Hubs;
 public class ChatHub: Hub
 {
     public static ConcurrentDictionary<string , string> connections = new();
+    DataBase db = new DataBase();
     public override async Task OnConnectedAsync() 
     {
         var username = Context.GetHttpContext().Request.Query["username"];
@@ -18,7 +19,7 @@ public class ChatHub: Hub
 
         Console.WriteLine("User connected");
     }
-    public override async Task OnDisconnectedAsync(Exception exception) 
+    public override async Task OnDisconnectedAsync(Exception exception)
     {
         var username = connections[Context.ConnectionId];
 

@@ -25,8 +25,11 @@ namespace NeuronServer
             var app = builder.Build();
             app.UseRouting();
             app.UseCors("AllowAll");
-            app.MapHub<ChatHub>("/chatHub");
 
+            app.MapHub<ChatHub>("/chatHub");
+            app.MapGet("/AddMember", (int ChatId, string username, string target_member) => SQL_Injections.AddMember(ChatId,username, target_member));
+            app.MapGet("/DeleteChat", (int ChatId, string username) => SQL_Injections.DeleteChat(ChatId, username));
+            
             await UserCache.LoadUsersData();
             
             app.Run();
