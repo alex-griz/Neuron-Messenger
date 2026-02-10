@@ -4,8 +4,8 @@ namespace NeuronServer
 {
     public class SQL_Injections
     {
-        DataBase db = new DataBase();
-        public bool AdminCheck(int ChatId, string username)
+        private static DataBase db = new DataBase();
+        public static bool AdminCheck(int ChatId, string username)
         {
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand("SELECT `Role` FROM `ContactBase` WHERE `ChatID` = @CI AND `Member` = @ME", connection);
@@ -27,7 +27,7 @@ namespace NeuronServer
                 return false;
             }
         }
-        public int AddMember(int ChatId, string username, string target_member)
+        public static int AddMember(int ChatId, string username, string target_member)
         {
             if(AdminCheck(ChatId, username))
             {
@@ -56,7 +56,7 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public int MakeAdmin(int ChatId, string username, string target_member)
+        public static int MakeAdmin(int ChatId, string username, string target_member)
         {
             if(AdminCheck(ChatId, username))
             {
@@ -74,7 +74,7 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public int DeleteMember(int ChatId, string username, string target_member)
+        public static int DeleteMember(int ChatId, string username, string target_member)
         {
             if(AdminCheck(ChatId, username))
             {
@@ -92,7 +92,7 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public int DeleteChat(int ChatId, string username)
+        public static int DeleteChat(int ChatId, string username)
         {
             if(AdminCheck(ChatId, username))
             {
@@ -100,7 +100,7 @@ namespace NeuronServer
                 {
                     using var connection = db.GetNewConnection();
                     using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `ChatID` = @CI", connection);
-                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
+                    command.Parameters.AddWithValue("@CI", ChatId);
 
                     connection.Open();
                     command.ExecuteNonQuery();
@@ -121,8 +121,8 @@ namespace NeuronServer
                 {
                     using var connection = db.GetNewConnection();
                     using var command = new MySqlCommand("DELETE FROM `ContactBase` WHERE `Member` = @ME AND `ChatID` = @CI", connection);
-                    command.Parameters.AddWithValue("@ME", MainWindow.Login);
-                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
+                    command.Parameters.AddWithValue("@ME", username);
+                    command.Parameters.AddWithValue("@CI", ChatId);
 
                     connection.Open();
                     command.ExecuteNonQuery();
