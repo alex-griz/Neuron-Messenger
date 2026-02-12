@@ -3,9 +3,11 @@ using MySql.Data.MySqlClient;
 using System.Collections.Concurrent;
 using System.Data;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
-
 namespace Neuron
 {
     public partial class NeuronMain : Window
@@ -14,6 +16,7 @@ namespace Neuron
         public static string ChooseChatName;
         public static ContactButton clicked = null;
         private static HubConnection hubConnection;
+        public HttpClient httpClient = new HttpClient();
         public ConcurrentDictionary<int, ChatData> chatCache= new();
         public ConcurrentDictionary<string, UserData> userCache = new();
 
@@ -124,38 +127,9 @@ namespace Neuron
             ProfileView window = new ProfileView();
             window.Show();
         }
-        private void DeleteChat(object sender, RoutedEventArgs e)
+        private async void DeleteChat(object sender, RoutedEventArgs e)
         {
-            /*if (clicked.IsAdmin == 0)
-            {
-                var answer = MessageBox.Show("Вы действительно хотите покинуть этот чат? Вы снова сможете присоединиться к ней", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (answer == MessageBoxResult.Yes)
-                {
-                    using var connection = db.GetNewConnection();
-                    using var command = new MySqlCommand(SQL_Injections.LeaveGroup, connection);
-                    command.Parameters.AddWithValue("@ME", MainWindow.Login);
-                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
 
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
-            else
-            {
-                var answer = MessageBox.Show("Вы действительно хотите безвозвратно удалить этот чат?", "Подтверждение действия", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (answer == MessageBoxResult.Yes)
-                {
-                    using var connection = db.GetNewConnection();
-                    using var command = new MySqlCommand(SQL_Injections.DeleteGroup, connection);
-                    command.Parameters.AddWithValue("@CI", ChooseContact.ToString());
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-
-                    command.CommandText = SQL_Injections.DeleteGroupMessages;
-                    command.ExecuteNonQuery();
-                }
-            }*/
         }
     }
     public class Commands()
@@ -275,7 +249,7 @@ namespace Neuron
                 };
                 var contact = new ContactButton
                 {
-                    Name = name,
+                    ButtonName = name,
                     ChatID = ChatID,
                     Type = type
                 };
@@ -295,10 +269,11 @@ namespace Neuron
                 };
                 var contact = new ContactButton
                 {
-                    Name = name,
+                    ButtonName = name,
                     ChatID = ChatID,
                     Type = type
                 };
+                chatListBox.Items.Add(contact);
             }
         }
         public async void LoadMembers(NeuronMain neuronMain)
@@ -328,7 +303,7 @@ namespace Neuron
     }
     public class ContactButton()
     {
-        public string Name { get; set; }
+        public string ButtonName { get; set; }
         public int ChatID { get; set; }
         public int Type { get; set; }
     }

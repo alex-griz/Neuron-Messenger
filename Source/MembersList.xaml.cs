@@ -14,9 +14,9 @@ namespace Neuron
             NameBox.Text = NeuronMain.ChooseChatName;
             LoadContacts();
         }
-        /*private void AddMember(object sender, RoutedEventArgs e)
+        private void AddMember(object sender, RoutedEventArgs e)
         {
-            if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
+            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -24,11 +24,11 @@ namespace Neuron
             {
                 AddMember addMember = new AddMember();
                 addMember.Show();
-            }
+            }*/
         }
         private void MakeAdmin(object sender, RoutedEventArgs e)
         {
-            if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
+            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -49,11 +49,11 @@ namespace Neuron
                         }
                     }
                 }
-            }
+            }*/
         }
         private void DeleteMember(object sender, RoutedEventArgs e)
         {
-            if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
+            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
             {
                 MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -75,8 +75,8 @@ namespace Neuron
                         }
                     }
                 }
-            }
-        }*/
+            }*/
+        }
         private void LoadContacts()
         {
             MembersListBox.ItemsSource = users;
