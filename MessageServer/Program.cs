@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
 using NeuronServer.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace NeuronServer
 {
@@ -21,14 +24,38 @@ namespace NeuronServer
             });
 
             builder.Services.AddSignalR();
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "NeuronAuthServer",
+                    ValidateAudience = true,
+                    ValidAudience = "NeuronClient",
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("w904myu5*7my9xfgkh&^$*kas@#)_(gofHU&%oe")), 
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
             
             var app = builder.Build();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseRouting();
             app.UseCors("AllowAll");
 
+
+
             app.MapHub<ChatHub>("/chatHub");
+            app.MapGet("/Login", (string username, string password) => SQL_Injections.Login(username, password));
             app.MapGet("/AddMember", (int ChatId, string username, string target_member) => SQL_Injections.AddMember(ChatId,username, target_member));
             app.MapGet("/DeleteChat", (int ChatId, string username) => SQL_Injections.DeleteChat(ChatId, username));
+
+
             
             await UserCache.LoadUsersData();
             

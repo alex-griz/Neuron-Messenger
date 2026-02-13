@@ -2,9 +2,37 @@ using MySql.Data.MySqlClient;
 using System.Data;
 namespace NeuronServer
 {
-    public class SQL_Injections
+    public static class SQL_Injections
     {
         private static DataBase db = new DataBase();
+        public static int Login(string username, string password)
+        {
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("SELECT `Username` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
+            using var adapter = new MySqlDataAdapter(command);
+            using var result = new DataTable();
+            command.Parameters.AddWithValue("@login", username);
+            command.Parameters.AddWithValue("@password", password);
+            try
+            {
+                connection.Open();
+                adapter.Fill(result);
+                if (result.Rows.Count > 0)
+                {
+                    
+                }
+                else
+                {
+                    return 2;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+
+
+        }
         public static bool AdminCheck(int ChatId, string username)
         {
             using var connection = db.GetNewConnection();
@@ -56,7 +84,7 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public static int MakeAdmin(int ChatId, string username, string target_member)
+        /*public static int MakeAdmin(int ChatId, string username, string target_member)
         {
             if(AdminCheck(ChatId, username))
             {
@@ -91,7 +119,7 @@ namespace NeuronServer
             {
                 return 0;
             }
-        }
+        }*/
         public static int DeleteChat(int ChatId, string username)
         {
             if(AdminCheck(ChatId, username))
