@@ -1,11 +1,22 @@
+using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 namespace NeuronServer
 {
     public static class SQL_Injections
     {
         private static DataBase db = new DataBase();
-        public static int Login(string username, string password)
+        private static SymmetricSecurityKey token_key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("w904myu5*7my9xfgkh&^$*kas@#)_(gofHU&%oe"));
+        private static readonly string token_issuer = "NeuronAuthServer";
+        private static readonly string token_audience = "NeuronClient";
+        private static SigningCredentials token_sign = new SigningCredentials(token_key, SecurityAlgorithms.HmacSha256);
+
+
+
+        public static  LoginResult Login(string username, string password)
         {
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand("SELECT `Username` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
@@ -19,16 +30,38 @@ namespace NeuronServer
                 adapter.Fill(result);
                 if (result.Rows.Count > 0)
                 {
-                    
+                    var user_claims = new[]
+                    {
+                        new Claim("username", username)
+                    };
+                    var token = new JwtSecurityToken(
+                        issuer: token_issuer,
+                        audience: token_audience,
+                        claims: user_claims,
+                        expires: DateTime.UtcNow.AddHours(1),
+                        signingCredentials: token_sign
+                    );
+                    return new LoginResult
+                    {
+                        status = 1,
+                        Jwt_token = new JwtSecurityTokenHandler().WriteToken(token) 
+                    };
                 }
                 else
                 {
-                    return 2;
+                    return new LoginResult{
+                        status =2,
+                        Jwt_token = null
+                    };
                 }
             }
             catch
             {
-                return 0;
+                
+                return new LoginResult{
+                        status =0,
+                        Jwt_token = null
+                    };
             }
 
 
@@ -55,8 +88,9 @@ namespace NeuronServer
                 return false;
             }
         }
-        public static int AddMember(int ChatId, string username, string target_member)
+        public static int AddMember(int ChatId, string target_member, HttpContext context)
         {
+            string username = context.User.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
                 try
@@ -69,7 +103,7 @@ namespace NeuronServer
                     command.Parameters.AddWithValue("@ME", target_member);
                     command.Parameters.AddWithValue("@R", 0);
 
-                    connection.OpenAsync();
+                    connection.Open();
                     command.ExecuteNonQuery();
 
                     return 1;
@@ -120,8 +154,9 @@ namespace NeuronServer
                 return 0;
             }
         }*/
-        public static int DeleteChat(int ChatId, string username)
+        public static int DeleteChat(int ChatId, HttpContext context)
         {
+            string username = context.User.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
                 try
@@ -164,4 +199,9 @@ namespace NeuronServer
             }
         }
     }
+}
+public class LoginResult
+{
+    public int status;
+    public string Jwt_token;
 }

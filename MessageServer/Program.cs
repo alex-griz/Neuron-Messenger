@@ -52,8 +52,8 @@ namespace NeuronServer
 
             app.MapHub<ChatHub>("/chatHub");
             app.MapGet("/Login", (string username, string password) => SQL_Injections.Login(username, password));
-            app.MapGet("/AddMember", (int ChatId, string username, string target_member) => SQL_Injections.AddMember(ChatId,username, target_member));
-            app.MapGet("/DeleteChat", (int ChatId, string username) => SQL_Injections.DeleteChat(ChatId, username));
+            app.MapPost("/AddMember", (int ChatId, string username, string target_member, HttpContext context) => SQL_Injections.AddMember(ChatId, target_member, context)).RequireAuthorization();
+            app.MapGet("/DeleteChat", (int ChatId, HttpContext context) => SQL_Injections.DeleteChat(ChatId, context)).RequireAuthorization();
 
 
             
