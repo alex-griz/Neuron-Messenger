@@ -4,6 +4,7 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 namespace NeuronServer
 {
     public static class SQL_Injections
@@ -16,7 +17,7 @@ namespace NeuronServer
 
 
 
-        public static  LoginResult Login(string username, string password)
+        public static string Login(string username, string password)
         {
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand("SELECT `Username` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
@@ -41,27 +42,16 @@ namespace NeuronServer
                         expires: DateTime.UtcNow.AddHours(1),
                         signingCredentials: token_sign
                     );
-                    return new LoginResult
-                    {
-                        status = 1,
-                        Jwt_token = new JwtSecurityTokenHandler().WriteToken(token) 
-                    };
+                    return JsonSerializer.Serialize(new {status = 1, token = new JwtSecurityTokenHandler().WriteToken(token)});
                 }
                 else
                 {
-                    return new LoginResult{
-                        status =2,
-                        Jwt_token = null
-                    };
+                    return JsonSerializer.Serialize(new {status = 2, token = ""});
                 }
             }
             catch
             {
-                
-                return new LoginResult{
-                        status =0,
-                        Jwt_token = null
-                    };
+                 return JsonSerializer.Serialize(new {status = 0, token = ""});
             }
 
 
@@ -118,13 +108,14 @@ namespace NeuronServer
                 return 0;
             }
         }
-        /*public static int MakeAdmin(int ChatId, string username, string target_member)
+        public static int MakeAdmin(int ChatId, string target_member,HttpContext context)
         {
+            string username = context.User?.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
                 try
                 {
-                    
+                    return 1;
                 }
                 catch
                 {
@@ -136,13 +127,14 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public static int DeleteMember(int ChatId, string username, string target_member)
+        public static int DeleteMember(int ChatId, string target_member,  HttpContext context)
         {
+            string username = context.User?.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
                 try
                 {
-                    
+                    return 1;
                 }
                 catch
                 {
@@ -153,7 +145,7 @@ namespace NeuronServer
             {
                 return 0;
             }
-        }*/
+        }
         public static int DeleteChat(int ChatId, HttpContext context)
         {
             string username = context.User.FindFirst("username")?.Value;
@@ -199,9 +191,4 @@ namespace NeuronServer
             }
         }
     }
-}
-public class LoginResult
-{
-    public int status;
-    public string Jwt_token;
 }

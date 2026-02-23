@@ -1,24 +1,20 @@
-﻿using System.Text;
+﻿using MySql.Data.MySqlClient;
+using System.Data;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using MySql.Data.MySqlClient;
-using System.Data;
-using System.Text.Json;
-using System.IO;
 
 namespace Neuron
 {
     public partial class MainWindow : Window
     {
+        public HttpClient client = new HttpClient();
         public static string Login;
-        public static string Name;
+        public static string Jwt_Security_Token = "";
         public MainWindow()
         {
             InitializeComponent();
@@ -38,40 +34,32 @@ namespace Neuron
 
             LoginFunction(Password);
         }
-        private void LoginFunction(string Password)
+        private async void LoginFunction(string Password)
         {
-            DataBase DB = new DataBase();
-            using DataTable AuthResult = new DataTable();
-            using (var connection = DB.GetNewConnection())
-            {
-                using (var command = new MySqlCommand("SELECT `Username`, `Name` FROM `authbase` WHERE `Username` = @login AND `Password` = @password",
-            connection))
-                {
-                    command.Parameters.Add("@login", MySqlDbType.VarChar).Value = Login;
-                    command.Parameters.Add("@password", MySqlDbType.VarChar).Value = Password;
-                    using (var adapter = new MySqlDataAdapter(command))
-                    {
-                        connection.Open();
-                        adapter.Fill(AuthResult);
-                    }
-                }
-            }
-            if (AuthResult.Rows.Count > 0)
-            {
-                Name = AuthResult.Rows[0][1].ToString();
-                if (SaveLogin.IsChecked == true)
-                {
-                    var loginData = new SaveLoginData { Login = Login, Password = Password };
-                    WriteLogin(loginData);
-                }
+            var response = await client.GetAsync($"http://localhost:5156/Login?username={Login}&password={Password}");
+            var result = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<LoginResult>(result);
 
-                NeuronMain window = new NeuronMain();
-                window.Show();
-                this.Hide();
-            }
-            else
+            switch (data.status)
             {
-                MessageBox.Show("Неверное имя пользователя или пароль, попробуйте ещё!", "Neuron - Авторизация", MessageBoxButton.OK, MessageBoxImage.Error);
+                case 0:
+                    MessageBox.Show("Возникла ошибка на сервере авторизации. Повторите попытку позже.", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                    break;
+                case 1:
+                    Jwt_Security_Token = data.token;
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.token);
+                    if (SaveLogin.IsChecked == true)
+                    {
+                        var loginData = new SaveLoginData { Login = Login, Password = Password };
+                        WriteLogin(loginData);
+                    }
+                    NeuronMain window = new NeuronMain();
+                    window.Show();
+                    this.Hide();
+                    break;
+                case 2:
+                    MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                    break;
             }
         }
 

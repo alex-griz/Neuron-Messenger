@@ -16,7 +16,6 @@ namespace Neuron
         public static string ChooseChatName;
         public static ContactButton clicked = null;
         private static HubConnection hubConnection;
-        public HttpClient httpClient = new HttpClient();
         public ConcurrentDictionary<int, ChatData> chatCache= new();
         public ConcurrentDictionary<string, UserData> userCache = new();
 
@@ -29,7 +28,10 @@ namespace Neuron
             InitializeComponent();
 
             hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5156/chatHub?username="+ MainWindow.Login)
+                .WithUrl("http://localhost:5156/chatHub", options =>
+                {
+                    options.AccessTokenProvider = () => Task.FromResult(MainWindow.Jwt_Security_Token);
+                })
                 .WithAutomaticReconnect()
                 .Build();
 

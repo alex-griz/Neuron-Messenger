@@ -40,21 +40,36 @@ namespace NeuronServer
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("w904myu5*7my9xfgkh&^$*kas@#)_(gofHU&%oe")), 
                     ClockSkew = TimeSpan.Zero
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
             
             var app = builder.Build();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseRouting();
             app.UseCors("AllowAll");
 
 
 
-            app.MapHub<ChatHub>("/chatHub");
+            app.MapHub<ChatHub>("/chatHub").RequireAuthorization();
             app.MapGet("/Login", (string username, string password) => SQL_Injections.Login(username, password));
-            app.MapPost("/AddMember", (int ChatId, string username, string target_member, HttpContext context) => SQL_Injections.AddMember(ChatId, target_member, context)).RequireAuthorization();
+            app.MapPost("/AddMember", (int ChatId, string target_member, HttpContext context) => SQL_Injections.AddMember(ChatId, target_member, context)).RequireAuthorization();
             app.MapGet("/DeleteChat", (int ChatId, HttpContext context) => SQL_Injections.DeleteChat(ChatId, context)).RequireAuthorization();
-
+            app.MapPost("/MakeAdmin", (int ChatId, string target_member, HttpContext context) => SQL_Injections.MakeAdmin(ChatId, target_member, context));
+            
 
             
             await UserCache.LoadUsersData();

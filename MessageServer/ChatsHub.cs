@@ -10,7 +10,7 @@ public class ChatHub: Hub
     DataBase db = new DataBase();
     public override async Task OnConnectedAsync() 
     {
-        var username = Context.GetHttpContext().Request.Query["username"];
+        var username = Context.User?.FindFirst("username")?.Value;
         connections[Context.ConnectionId] = username!;
         
         await base.OnConnectedAsync();

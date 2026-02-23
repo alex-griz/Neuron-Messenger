@@ -16,66 +16,15 @@ namespace Neuron
         }
         private void AddMember(object sender, RoutedEventArgs e)
         {
-            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
-            {
-                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                AddMember addMember = new AddMember();
-                addMember.Show();
-            }*/
+
         }
         private void MakeAdmin(object sender, RoutedEventArgs e)
         {
-            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
-            {
-                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                var SelectedUsers = users.Where(u => u.IsSelected).Select(u => u.Name).ToArray();
-                using (var connection = db.GetNewConnection())
-                {
-                    using (var command = new MySqlCommand("UPDATE `contactbase` SET `Role` = 1 WHERE `ChatID` = @CI AND `Member` = @ME", connection))
-                    {
-                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact);
-                        command.Parameters.Add("@ME", MySqlDbType.VarChar);
-                        connection.Open();
-                        foreach(string username  in SelectedUsers)
-                        {
-                            command.Parameters["@ME"].Value = username; 
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                }
-            }*/
+            
         }
         private void DeleteMember(object sender, RoutedEventArgs e)
         {
-            /*if (NeuronMain.clicked.IsAdmin == 0 || NeuronMain.clicked.Type == 0)
-            {
-                MessageBox.Show("Недостаточно прав", "Ошибка доступа", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                var SelectedUsers = users.Where(u => u.IsSelected).Select(u => u.Name).ToArray();
-                using (var connection = db.GetNewConnection())
-                {
-                    using (var command = new MySqlCommand("DELETE FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection))
-                    {
-                        command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact);
-                        command.Parameters.Add("@ME", MySqlDbType.VarChar);
-                        connection.Open();
-
-                        foreach (string username in SelectedUsers)
-                        {
-                            command.Parameters["@ME"].Value = username;
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                }
-            }*/
+            
         }
         private void LoadContacts()
         {
