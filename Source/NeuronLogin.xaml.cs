@@ -85,12 +85,16 @@ namespace Neuron
                 SaveLoginData saveLoginData = new SaveLoginData { Login = null, Password= null};
                 return saveLoginData;
             }
-            
         }
     }
     public class SaveLoginData()
     {
         public string Login { get; set; }
         public string Password { get; set; }
+    }
+    public class LoginResult
+    {
+        public int status { get; set; }
+        public string token { get; set; }
     }
 }

@@ -3,7 +3,6 @@
     public class SQL_Injections
     {
         public static readonly string GetMessages = "SELECT * FROM `MessageBase` WHERE `ChatID` = @CI ORDER BY Date ASC, Time ASC";
-        public static readonly string SendMessage = "INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )";
         public static readonly string GetGroupContacts = "SELECT pb.ChatID , pb.ChatName , pb.Type FROM `ContactBase` cb JOIN `ChatBase` pb ON cb.ChatID = pb.ChatID WHERE cb.Member = @Username";
         public static readonly string GetUserContacts = "SELECT cb.ChatID, pb.Name FROM `ContactBase` cb JOIN `ProfileBase` pb ON cb.SecondMember = pb.Username WHERE cb.Member = @Username";
         public static readonly string LoadProfile = "SELECT * FROM `ProfileBase` WHERE `Username` = @UN";

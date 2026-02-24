@@ -200,31 +200,11 @@ namespace Neuron
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
 
             await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
-
-            using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand(SQL_Injections.SendMessage, connection);
-
-            connection.Open();
-
-            command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
-            command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
-            command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
-            command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
-            command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
-
-            try
-            {
-                command.ExecuteNonQuery();
-            }
-            catch
-            {
-                MessageBox.Show("Не удалось отправить сообщение", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
         public async void LoadContacts(NeuronMain neuronMain, ListBox chatListBox)
         {
             using DataTable GroupContactsList = new DataTable();
-            using DataTable UserContsctsList = new DataTable();
+            using DataTable UserContactsList = new DataTable();
             using var connection = db.GetNewConnection();
             using var command = new MySqlCommand(SQL_Injections.GetGroupContacts, connection);
             using var adapter = new MySqlDataAdapter(command);
@@ -235,47 +215,54 @@ namespace Neuron
             adapter.Fill(GroupContactsList);
 
             command.CommandText = SQL_Injections.GetUserContacts;
-            adapter.Fill(UserContsctsList);
+            adapter.Fill(UserContactsList);
 
-            for (int i = 0; i < GroupContactsList.Rows.Count; i++)
+            var uniqueChats = new HashSet<int>();
+
+            foreach (DataRow row in UserContactsList.Rows)
             {
-                string name = GroupContactsList.Rows[i][1].ToString();
-                int ChatID = Convert.ToInt32(GroupContactsList.Rows[i][0]);
-                int type = Convert.ToInt16(GroupContactsList.Rows[i][2]);
+                string name = row[1].ToString();
+                int ChatID = Convert.ToInt32(row[0]);
 
-                neuronMain.chatCache[ChatID] = new ChatData
+                if (uniqueChats.Add(ChatID))
                 {
-                    Name = name,
-                    Type = type,
-                    ImagePath = ""
-                };
-                var contact = new ContactButton
-                {
-                    ButtonName = name,
-                    ChatID = ChatID,
-                    Type = type
-                };
-                chatListBox.Items.Add(contact);
+                    neuronMain.chatCache[ChatID] = new ChatData
+                    {
+                        Name = name,
+                        Type = 0,
+                        ImagePath = ""
+                    };
+                    var contact = new ContactButton
+                    {
+                        ButtonName = name,
+                        ChatID = ChatID,
+                        Type = 0
+                    };
+                    chatListBox.Items.Add(contact);
+                }
             }
-            for (int i =0; i<UserContsctsList.Rows.Count; i++)
+            foreach (DataRow row in GroupContactsList.Rows)
             {
-                string name = UserContsctsList.Rows[i][1].ToString();
-                int ChatID = Convert.ToInt32(UserContsctsList.Rows[i][0]);
-                int type = 0;
+                string name = row[1].ToString();
+                int ChatID = Convert.ToInt32(row[0]);
+                int type = Convert.ToInt16(row[2]);
 
-                neuronMain.chatCache[ChatID] = new ChatData
+                if (uniqueChats.Add(ChatID))
                 {
-                    Name = name,
-                    Type = type,
-                    ImagePath = ""
-                };
-                var contact = new ContactButton
-                {
-                    ButtonName = name,
-                    ChatID = ChatID,
-                    Type = type
-                };
-                chatListBox.Items.Add(contact);
+                    neuronMain.chatCache[ChatID] = new ChatData
+                    {
+                        Name = name,
+                        Type = type,
+                        ImagePath = ""
+                    };
+                    var contact = new ContactButton
+                    {
+                        ButtonName = name,
+                        ChatID = ChatID,
+                        Type = type
+                    };
+                    chatListBox.Items.Add(contact);
+                }
             }
         }
         public async void LoadMembers(NeuronMain neuronMain)
@@ -296,8 +283,14 @@ namespace Neuron
             {
                 string username = row[0].ToString();
                 string name = row[1].ToString();
-                neuronMain.userCache[username].Name = name;
-                neuronMain.userCache[username].ImagePath = "";
+                try
+                {
+                    neuronMain.userCache[username].Name = name;
+                }
+                catch
+                {
+                    neuronMain.userCache[username] = new UserData{Name = name};
+                }
 
                 MembersList.users.Add(new CheckItem { Name = username, IsSelected = false });
             }
@@ -326,6 +319,6 @@ namespace Neuron
     public class UserData()
     {
         public string Name { get; set; }
-        public string ImagePath { get; set; }
+        //public string ImagePath { get; set; }
     }
 }

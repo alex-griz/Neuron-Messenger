@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
+using MySql.Data.MySqlClient;
 
 namespace NeuronServer.Hubs;
 
@@ -37,6 +38,24 @@ public class ChatHub: Hub
             {
                 await Clients.Group(member).SendAsync("GetMessage", message);
             }
+        }
+        using var connection = db.GetNewConnection();
+        using var command = new MySqlCommand("INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`) VALUES (@CI ,@S, @M, @T, @D )", connection);
+
+        command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
+        command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
+        command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
+        command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
+        command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
+
+        try
+        {
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+        catch
+        {
+            Console.WriteLine("Не удалось сохранить сообщение в БД");
         }
     }
 }
