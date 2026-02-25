@@ -12,7 +12,7 @@ namespace Neuron
 {
     public partial class MainWindow : Window
     {
-        public HttpClient client = new HttpClient();
+        public static HttpClient client = new HttpClient();
         public static string Login;
         public static string Jwt_Security_Token = "";
         public MainWindow()

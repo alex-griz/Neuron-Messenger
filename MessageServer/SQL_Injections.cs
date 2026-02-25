@@ -1,5 +1,6 @@
 using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -66,7 +67,7 @@ namespace NeuronServer
             command.Parameters.AddWithValue("@CI" , ChatId);
             command.Parameters.AddWithValue("@ME", username);
 
-            connection.OpenAsync();
+            connection.Open();
             adapter.Fill(result);
 
             if (result.Rows[0][0].ToString() == "1")
@@ -100,12 +101,12 @@ namespace NeuronServer
                 }
                 catch
                 {
-                    return 2;
+                    return 0;
                 }
             }
             else
             {
-                return 0;
+                return 2;
             }
         }
         public static int MakeAdmin(int ChatId, string target_member,HttpContext context)
@@ -163,6 +164,9 @@ namespace NeuronServer
                     command.CommandText = "DELETE FROM `MessageBase` WHERE `ChatID` = @CI";
                     command.ExecuteNonQuery();
 
+                    command.CommandText = "DELETE FROM `ChatBase` WHERE `ChatID` = @CI";
+                    command.ExecuteNonQuery();
+
                     return 2;
                 }
                 catch
@@ -188,6 +192,63 @@ namespace NeuronServer
                 {
                     return 0;
                 }
+            }
+        }
+        public static int AddContact(string target_username, HttpContext context)
+        {
+            UserCache.last_chat_id +=1;
+            string username = context.User.FindFirst("username")?.Value;
+
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`,`SecondMember`, `Role`) VALUES (@CI , @ME,@SM, @R)", connection);
+            command.Parameters.Add("@CI", MySqlDbType.Int16).Value = UserCache.last_chat_id;
+            command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = username;
+            command.Parameters.Add("@SM", MySqlDbType.VarChar).Value = target_username;
+            command.Parameters.Add("@R", MySqlDbType.Int16).Value = 1;
+
+            try
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+
+                command.Parameters["@ME"].Value = target_username;
+                command.Parameters["@SM"].Value = username;
+                command.ExecuteNonQuery();
+
+                command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo` , `Type`) VALUES (@CI, NULL, NULL, NULL, 0)";
+                command.ExecuteNonQuery();
+
+               return 1;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static int AddGroup(string name, HttpContext context)
+        {
+            UserCache.last_chat_id +=1;
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) VALUES (@CI , @ME, @R)", connection);
+            
+            command.Parameters.AddWithValue("@CI", UserCache.last_chat_id);
+            command.Parameters.AddWithValue("@ME", context.User.FindFirst("username")?.Value);
+            command.Parameters.AddWithValue("@R", 1);
+
+            try
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+
+                command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo`, `Type`) VALUES (@CI, @CN, NULL, NULL, 1)";
+                command.Parameters.AddWithValue("@CN", name);
+                command.ExecuteNonQuery();
+
+                return 1;
+            }
+            catch
+            {
+                return 0;
             }
         }
     }

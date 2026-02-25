@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace Neuron
@@ -14,9 +13,10 @@ namespace Neuron
             NameBox.Text = NeuronMain.ChooseChatName;
             LoadContacts();
         }
-        private void AddMember(object sender, RoutedEventArgs e)
+        private async void AddMember(object sender, RoutedEventArgs e)
         {
-
+            AddMember window = new AddMember();
+            window.Show();
         }
         private void MakeAdmin(object sender, RoutedEventArgs e)
         {
@@ -34,20 +34,6 @@ namespace Neuron
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             string NewChatName = NameBox.Text;
-            using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("UPDATE `ChatBase` SET `ChatName` = @CN WHERE `ChatID` = @CI", connection);
-  
-            command.Parameters.AddWithValue("@CN", NewChatName);
-            command.Parameters.AddWithValue("@CI", NeuronMain.ChooseContact.ToString());
-            try
-            {
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            catch
-            {
-                MessageBox.Show("Не удалось переименовать чат", "Ошибка отправки", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
     }
     public class CheckItem()

@@ -3,9 +3,6 @@ using MySql.Data.MySqlClient;
 using System.Collections.Concurrent;
 using System.Data;
 using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 namespace Neuron
@@ -131,7 +128,24 @@ namespace Neuron
         }
         private async void DeleteChat(object sender, RoutedEventArgs e)
         {
-
+            var answer = MessageBox.Show("Вы уверены что хотите безвозвратно удалить этот чат? Если вы не являетесь владельцем группы, вы просто покинете её", "Удаление чата", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if(answer == MessageBoxResult.Yes)
+            {
+                var response = await MainWindow.client.DeleteAsync($"http://localhost:5156/DeleteChat?ChatId={ChooseContact}");
+                var result = int.Parse(await response.Content.ReadAsStringAsync());
+                switch (result)
+                {
+                    case 0:
+                        MessageBox.Show("Ошибка на стороне сервера", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    case 1:
+                        MessageBox.Show("Вы успешно покинули группу", "Neuron", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                    case 2:
+                        MessageBox.Show("Вы успешно удалили группу", "Neuron", MessageBoxButton.OK, MessageBoxImage.Information);
+                        break;
+                }
+            }
         }
     }
     public class Commands()
@@ -296,7 +310,7 @@ namespace Neuron
             }
         }
     }
-    public class ContactButton()
+    public class ContactButton
     {
         public string ButtonName { get; set; }
         public int ChatID { get; set; }
