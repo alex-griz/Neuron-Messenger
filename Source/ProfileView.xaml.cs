@@ -6,7 +6,7 @@ namespace Neuron
 {
     public partial class ProfileView : Window
     {
-        public static string username = "";
+        public static string target_username = "";
         public ProfileView()
         {
             InitializeComponent();
@@ -21,16 +21,16 @@ namespace Neuron
             using var command = new MySqlCommand(SQL_Injections.LoadProfile, connection);
             using var adapter = new MySqlDataAdapter(command);
 
-            command.Parameters.AddWithValue("@UN", username);
+            command.Parameters.AddWithValue("@UN", target_username);
 
             connection.Open();
             adapter.Fill(profileTable);
 
-            UsernameBox.Text = username;
+            UsernameBox.Text = target_username;
             NameBox.Text = profileTable.Rows[0][1].ToString();
             BioBox.Text = profileTable.Rows[0][2].ToString();
 
-            if (username != MainWindow.Login)
+            if (target_username != MainWindow.Login)
             {
                 UsernameBox.IsReadOnly = true;
                 NameBox.IsReadOnly = true;
@@ -38,27 +38,17 @@ namespace Neuron
                 SaveButton.Visibility = Visibility.Hidden;
             }
         }
-        private void SaveProfile(object sender, RoutedEventArgs e)
+        private async void SaveProfile(object sender, RoutedEventArgs e)
         {
-            DataBase db = new DataBase();
-            using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand(SQL_Injections.SaveProfile, connection);
+            string new_username = UsernameBox.Text;
+            string new_name = NameBox.Text;
+            string new_bio = BioBox.Text;
 
-            command.Parameters.AddWithValue("@UN", UsernameBox.Text);
-            command.Parameters.AddWithValue("@U", NameBox.Text);
-            command.Parameters.AddWithValue("@D", BioBox.Text);
-            command.Parameters.AddWithValue("@UI", MainWindow.Login);
-            try
+            var response = await MainWindow.client.PostAsync($"http://localhost:5156/ChangeProfileData?username={new_username}&name={new_name}&bio={new_bio}", null);
+            var result = int.Parse(await response.Content.ReadAsStringAsync());
+            if (result == 0)
             {
-                connection.Open();
-                command.ExecuteNonQuery();
-
-                command.CommandText = SQL_Injections.SaveLoginData;
-                command.ExecuteNonQuery();
-            }
-            catch
-            {
-                MessageBox.Show("Не удалось сохранить изменения","Ошибка отправки", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                MessageBox.Show("Возникла ошибка на стороне сервера", "Ошибка", MessageBoxButton.OKCancel, MessageBoxImage.Error);
             }
         }
     }

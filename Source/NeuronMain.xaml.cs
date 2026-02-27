@@ -100,7 +100,7 @@ namespace Neuron
         }
         private void OpenProfileEditor(object sender, RoutedEventArgs e)
         {
-            ProfileView.username = MainWindow.Login;
+            ProfileView.target_username = MainWindow.Login;
             ProfileView window = new ProfileView();
             window.Show();
         }
@@ -117,11 +117,11 @@ namespace Neuron
 
             if(members.Rows[0][0] != MainWindow.Login)
             {
-                ProfileView.username = members.Rows[0][0].ToString();
+                ProfileView.target_username = members.Rows[0][0].ToString();
             }
             else
             {
-                ProfileView.username = members.Rows[1][0].ToString();
+                ProfileView.target_username = members.Rows[1][0].ToString();
             }
             ProfileView window = new ProfileView();
             window.Show();

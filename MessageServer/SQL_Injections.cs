@@ -18,6 +18,54 @@ namespace NeuronServer
 
 
 
+        public static int Registration(string username, string name, string password)
+        {
+            if (CheckUsername(username))
+            {
+                using var connection = db.GetNewConnection();
+                using var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)", connection);
+
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@Password", password);
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "INSERT INTO `ProfileBase` (`Username`, `Name`) VALUES (@Username , @Name)";
+                    command.ExecuteNonQuery();
+                    return 1;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 2;
+            }
+        } 
+        private static bool CheckUsername(string username)
+        {
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("SELECT `Name` FROM `authbase` WHERE `Username` = @Username", connection);
+            using var adapter = new MySqlDataAdapter(command);
+            using var table = new DataTable();
+            command.Parameters.AddWithValue("@Username", username);
+
+            connection.Open();
+            adapter.Fill(table);
+            if (table.Rows.Count > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public static string Login(string username, string password)
         {
             using var connection = db.GetNewConnection();
@@ -109,13 +157,23 @@ namespace NeuronServer
                 return 2;
             }
         }
-        public static int MakeAdmin(int ChatId, string target_member,HttpContext context)
+        public static int MakeAdmin(int ChatId, string[] target_members ,HttpContext context)
         {
             string username = context.User?.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
+                using var connection = db.GetNewConnection();
+                using var command = new MySqlCommand("UPDATE `contactbase` SET `Role` = 1 WHERE `ChatID` = @CI AND `Member` = @ME", connection);
+                command.Parameters.AddWithValue("@CI", ChatId);
+                command.Parameters.Add("@ME", MySqlDbType.VarChar);
                 try
                 {
+                    connection.Open();
+                    foreach (string targetUsername in target_members)
+                    {
+                        command.Parameters["@ME"].Value = targetUsername;
+                        command.ExecuteNonQuery();
+                    }
                     return 1;
                 }
                 catch
@@ -128,13 +186,23 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public static int DeleteMember(int ChatId, string target_member,  HttpContext context)
+        public static int DeleteMember(int ChatId, string[] target_members,  HttpContext context)
         {
             string username = context.User?.FindFirst("username")?.Value;
             if(AdminCheck(ChatId, username))
             {
+                using var connection = db.GetNewConnection();
+                using var command = new MySqlCommand("DELETE FROM `contactbase` WHERE `ChatID` = @CI AND `Member` = @ME", connection);
+                command.Parameters.AddWithValue("@CI", ChatId);
+                command.Parameters.Add("@ME", MySqlDbType.VarChar);
                 try
                 {
+                    connection.Open();
+                    foreach (string targetUsername in target_members)
+                    {
+                        command.Parameters["@ME"].Value = targetUsername;
+                        command.ExecuteNonQuery();
+                    }
                     return 1;
                 }
                 catch
@@ -242,6 +310,32 @@ namespace NeuronServer
 
                 command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo`, `Type`) VALUES (@CI, @CN, NULL, NULL, 1)";
                 command.Parameters.AddWithValue("@CN", name);
+                command.ExecuteNonQuery();
+
+                return 1;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static int ChangeProfileData(string new_username, string new_name, string new_bio, HttpContext context)
+        {
+            var username = context.User.FindFirst("username")?.Value;
+            using var connection = db.GetNewConnection();
+            using var command = new MySqlCommand("UPDATE `ProfileBase` SET `Username` = @UN ,`Name` = @U , `Description` = @D WHERE `Username`= @UI", connection);
+
+            command.Parameters.AddWithValue("@UN", new_username);
+            command.Parameters.AddWithValue("@U", new_name);
+            command.Parameters.AddWithValue("@D", new_bio);
+            command.Parameters.AddWithValue("@UI", username);
+
+            try
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+
+                command.CommandText = "UPDATE `AuthBase` SET `Username` = @UN, `Name`= @U WHERE `Username` = @UI";
                 command.ExecuteNonQuery();
 
                 return 1;
