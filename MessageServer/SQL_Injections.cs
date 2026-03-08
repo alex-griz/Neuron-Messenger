@@ -69,7 +69,7 @@ namespace NeuronServer
         public static string Login(string username, string password)
         {
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("SELECT `Username` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
+            using var command = new MySqlCommand("SELECT `Username`, `Private_key` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
             using var adapter = new MySqlDataAdapter(command);
             using var result = new DataTable();
             command.Parameters.AddWithValue("@login", username);
@@ -91,18 +91,17 @@ namespace NeuronServer
                         expires: DateTime.UtcNow.AddHours(1),
                         signingCredentials: token_sign
                     );
-                    return JsonSerializer.Serialize(new {status = 1, token = new JwtSecurityTokenHandler().WriteToken(token)});
+                    return JsonSerializer.Serialize(new {status = 1, token = new JwtSecurityTokenHandler().WriteToken(token) , private_encrypt_key = result.Rows[0][1].ToString()});
                 }
                 else
                 {
-                    return JsonSerializer.Serialize(new {status = 2, token = ""});
+                    return JsonSerializer.Serialize(new {status = 2, token = "" , private_encrypt_key = ""});
                 }
             }
             catch
             {
-                 return JsonSerializer.Serialize(new {status = 0, token = ""});
+                 return JsonSerializer.Serialize(new {status = 0, token = "", private_encrypt_key = ""});
             }
-
 
         }
         public static bool AdminCheck(int ChatId, string username)

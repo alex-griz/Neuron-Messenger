@@ -1,8 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using System.Data;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -14,6 +13,7 @@ namespace Neuron
     {
         public static HttpClient client = new HttpClient();
         public static string Login;
+        public static string private_key = "";
         public static string Jwt_Security_Token = "";
         public MainWindow()
         {
@@ -53,6 +53,8 @@ namespace Neuron
                         var loginData = new SaveLoginData { Login = Login, Password = Password };
                         WriteLogin(loginData);
                     }
+                    string security_key = File.ReadAllText("Security_key.txt");
+                    private_key = Convert.ToBase64String(AES_Decrypt(Encoding.UTF8.GetBytes(data.private_encrypt_key), security_key));
                     NeuronMain window = new NeuronMain();
                     window.Show();
                     this.Hide();
@@ -86,6 +88,28 @@ namespace Neuron
                 return saveLoginData;
             }
         }
+        static byte[] AES_Decrypt(byte[] encryptedData, string password)
+        {
+            byte[] key = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+
+            using (Aes aes = Aes.Create())
+            {
+                byte[] iv = new byte[16];
+                Array.Copy(encryptedData, 0, iv, 0, 16);
+                aes.Key = key;
+                aes.IV = iv;
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(encryptedData, 16, encryptedData.Length - 16);
+                        cs.FlushFinalBlock();
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
     }
     public class SaveLoginData()
     {
@@ -96,5 +120,6 @@ namespace Neuron
     {
         public int status { get; set; }
         public string token { get; set; }
+        public string private_encrypt_key { get; set; }
     }
 }

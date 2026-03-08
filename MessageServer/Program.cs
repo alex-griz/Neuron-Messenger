@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.SignalR;
 using NeuronServer.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

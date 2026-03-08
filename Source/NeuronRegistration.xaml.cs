@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Neuron
@@ -17,7 +20,16 @@ namespace Neuron
             Username = UsernameBox.Text;
             string Password = PasswordBox.Password;
 
-            var response = await MainWindow.client.PostAsync($"http://localhost:5156/Reg?username={Username}&name={Name}&password={Password}", null);
+            using var rsa = RSA.Create(2048);
+            var public_key = rsa.ExportRSAPublicKey();
+            var private_key = rsa.ExportRSAPrivateKey();
+
+            Random rnd = new Random();
+            string security_key = rnd.Next(100001, 999999).ToString();
+            string encrypted_private_key = Uri.EscapeDataString(Convert.ToBase64String(AES_Encrypt(private_key,security_key)));
+            string safe_public_key = Uri.EscapeDataString(Convert.ToBase64String(public_key));
+
+            var response = await MainWindow.client.PostAsync($"http://localhost:5156/Reg?username={Username}&name={Name}&password={Password}&public_key={safe_public_key}&private_key={encrypted_private_key}", null);
             var result = int.Parse(await response.Content.ReadAsStringAsync());
             switch (result)
             {
@@ -26,10 +38,30 @@ namespace Neuron
                     break;
                 case 1:
                     MessageBox.Show("Успешная регистрация!", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+                    File.WriteAllText("Security_key.txt",security_key);
                     break;
                 case 2:
                     MessageBox.Show("Такое имя пользователя уже существует! Пожалуйста, выберите другое", "Neuron - регистрация", MessageBoxButton.OKCancel, MessageBoxImage.Error);
                     break;
+            }
+        }
+        static byte[] AES_Encrypt(byte[] data, string password)
+        {
+            byte[] key = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.GenerateIV();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    ms.Write(aes.IV, 0, aes.IV.Length);
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(data, 0, data.Length);
+                        cs.FlushFinalBlock();
+                        return ms.ToArray();
+                    }
+                }
             }
         }
     }

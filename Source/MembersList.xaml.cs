@@ -1,5 +1,4 @@
-﻿using MySqlX.XDevAPI;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
