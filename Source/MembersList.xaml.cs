@@ -8,7 +8,6 @@ namespace Neuron
 {
     public partial class MembersList : Window
     {
-        DataBase db = new DataBase();
         public static ObservableCollection<CheckItem> users = new ObservableCollection<CheckItem>();
         public MembersList()
         {

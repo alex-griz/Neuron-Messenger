@@ -1,6 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,22 +17,24 @@ namespace NeuronServer
 
 
 
-        public static int Registration(string username, string name, string password)
+        public static int Registration(string username, string name, string password, string public_key, string private_key)
         {
             if (CheckUsername(username))
             {
                 using var connection = db.GetNewConnection();
-                using var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`) VALUES (@Username , @Name, @Password)", connection);
+                using var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`, `Private_Key`) VALUES (@Username , @Name, @Password, @Private)", connection);
 
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Name", name);
                 command.Parameters.AddWithValue("@Password", password);
+                command.Parameters.AddWithValue("@Private", private_key);
                 try
                 {
                     connection.Open();
                     command.ExecuteNonQuery();
 
-                    command.CommandText = "INSERT INTO `ProfileBase` (`Username`, `Name`) VALUES (@Username , @Name)";
+                    command.CommandText = "INSERT INTO `ProfileBase` (`Username`, `Name`, `Public_Key`) VALUES (@Username , @Name, @Public)";
+                    command.Parameters.AddWithValue("@Public", public_key);
                     command.ExecuteNonQuery();
                     return 1;
                 }
@@ -69,7 +70,7 @@ namespace NeuronServer
         public static string Login(string username, string password)
         {
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("SELECT `Username`, `Private_key` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
+            using var command = new MySqlCommand("SELECT `Username`, `Private_Key` FROM `authbase` WHERE `Username` = @login AND `Password` = @password", connection);
             using var adapter = new MySqlDataAdapter(command);
             using var result = new DataTable();
             command.Parameters.AddWithValue("@login", username);

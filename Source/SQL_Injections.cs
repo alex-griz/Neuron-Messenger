@@ -6,6 +6,6 @@
         public static readonly string GetGroupContacts = "SELECT pb.ChatID , pb.ChatName , pb.Type FROM `ContactBase` cb JOIN `ChatBase` pb ON cb.ChatID = pb.ChatID WHERE cb.Member = @Username";
         public static readonly string GetUserContacts = "SELECT cb.ChatID, pb.Name FROM `ContactBase` cb JOIN `ProfileBase` pb ON cb.SecondMember = pb.Username WHERE cb.Member = @Username";
         public static readonly string LoadProfile = "SELECT * FROM `ProfileBase` WHERE `Username` = @UN";
-        public static readonly string LoadMembers = "SELECT pb.Username, pb.Name FROM `Contactbase` cb JOIN `ProfileBase` pb ON cb.Member = pb.Username WHERE cb.ChatID = @CI";
+        public static readonly string LoadMembers = "SELECT pb.Username, pb.Name, pb.Public_Key FROM `Contactbase` cb JOIN `ProfileBase` pb ON cb.Member = pb.Username WHERE cb.ChatID = @CI";
     }
 }
