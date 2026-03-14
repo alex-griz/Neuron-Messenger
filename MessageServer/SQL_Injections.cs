@@ -21,20 +21,23 @@ namespace NeuronServer
         {
             if (CheckUsername(username))
             {
+                byte[] privateKeyBytes = Convert.FromBase64String(private_key);
+                byte[] publicKeyBytes = Convert.FromBase64String(public_key);
+
                 using var connection = db.GetNewConnection();
                 using var command = new MySqlCommand("INSERT INTO `authbase` (`Username`, `Name`, `Password`, `Private_Key`) VALUES (@Username , @Name, @Password, @Private)", connection);
 
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Name", name);
                 command.Parameters.AddWithValue("@Password", password);
-                command.Parameters.AddWithValue("@Private", private_key);
+                command.Parameters.AddWithValue("@Private", privateKeyBytes);
                 try
                 {
                     connection.Open();
                     command.ExecuteNonQuery();
 
                     command.CommandText = "INSERT INTO `ProfileBase` (`Username`, `Name`, `Public_Key`) VALUES (@Username , @Name, @Public)";
-                    command.Parameters.AddWithValue("@Public", public_key);
+                    command.Parameters.AddWithValue("@Public", publicKeyBytes);
                     command.ExecuteNonQuery();
                     return 1;
                 }
@@ -92,7 +95,7 @@ namespace NeuronServer
                         expires: DateTime.UtcNow.AddHours(1),
                         signingCredentials: token_sign
                     );
-                    return JsonSerializer.Serialize(new {status = 1, token = new JwtSecurityTokenHandler().WriteToken(token) , private_encrypt_key = result.Rows[0][1].ToString()});
+                    return JsonSerializer.Serialize(new {status = 1, token = new JwtSecurityTokenHandler().WriteToken(token) , private_encrypt_key = Convert.ToBase64String((byte[])result.Rows[0][1])});
                 }
                 else
                 {

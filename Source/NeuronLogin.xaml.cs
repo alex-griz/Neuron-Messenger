@@ -53,8 +53,10 @@ namespace Neuron
                         var loginData = new SaveLoginData { Login = Login, Password = Password };
                         WriteLogin(loginData);
                     }
-                    string security_key = File.ReadAllText("Security_key.txt");
-                    private_key = Convert.ToBase64String(AES_Decrypt(Encoding.UTF8.GetBytes(data.private_encrypt_key), security_key));
+                    string security_key = File.ReadAllText($"Security_keys/{Login}.txt");
+                    byte[] encryptedPrivateKey = Convert.FromBase64String(data.private_encrypt_key);
+                    byte[] privateKeyBytes = AES_Decrypt(encryptedPrivateKey, security_key);
+                    private_key = Convert.ToBase64String(privateKeyBytes);
                     NeuronMain window = new NeuronMain();
                     window.Show();
                     this.Hide();

@@ -72,7 +72,19 @@ namespace NeuronServer
             app.MapPost("/AddContact",(string target_username, HttpContext context) => SQL_Injections.AddContact(target_username, context)).RequireAuthorization();
             app.MapPost("/AddGroup", (string name, HttpContext context) => SQL_Injections.AddGroup(name,context)).RequireAuthorization();
             app.MapPost("/ChangeProfileData", (string username, string name, string bio, HttpContext context) => SQL_Injections.ChangeProfileData(username, name, bio, context)).RequireAuthorization();
-            app.MapPost("/Reg", (string username, string name, string password, string public_key , string private_key) => SQL_Injections.Registration(username, name,password, public_key , private_key));
+            app.MapPost("/Reg", async (HttpContext context) =>
+            {
+                var form = await context.Request.ReadFormAsync();
+    
+                string username = form["username"];
+                string name = form["name"];
+                string password = form["password"];
+                string public_key = form["public_key"];
+                string private_key = form["private_key"];
+                
+                var result = SQL_Injections.Registration(username, name, password, public_key, private_key);
+                return result.ToString();
+            });
             
             await UserCache.LoadUsersData();
             

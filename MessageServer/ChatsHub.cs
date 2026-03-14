@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Collections.Concurrent;
 using MySql.Data.MySqlClient;
 
@@ -40,14 +39,13 @@ public class ChatHub: Hub
             }
         }
         using var connection = db.GetNewConnection();
-        using var command = new MySqlCommand("INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Aes_key`, `Iv`) VALUES (@CI ,@S, @M, @T, @D, @AES, @Iv )", connection);
+        using var command = new MySqlCommand("INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Iv`) VALUES (@CI ,@S, @M, @T, @D, @Iv )", connection);
 
         command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
         command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
         command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
         command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
         command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
-        command.Parameters.AddWithValue("@AES", message.AesKey);
         command.Parameters.AddWithValue("@Iv", message.Iv);
 
         try
@@ -68,6 +66,5 @@ public class ChatMessage
     public string Message {get; set;}
     public string Time {get; set;}
     public string Date {get; set;}
-    public string AesKey { get; set; }
     public string Iv { get; set; }
 }

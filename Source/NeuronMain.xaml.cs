@@ -90,7 +90,7 @@ namespace Neuron
         }
         private void SendMessage(object sender, RoutedEventArgs e)
         {
-            commands.SendMessage(MessageField.Text, hubConnection);
+            commands.SendMessage(this, MessageField.Text, hubConnection);
             MessageField.Clear();
         }
         private void OpenChatFeatures(object sender, RoutedEventArgs e)
@@ -157,7 +157,6 @@ namespace Neuron
     }
     public class Commands()
     {
-        private NeuronMain neuronMain = new NeuronMain();
         private DataBase db = new DataBase();
         private string CurrentDate;
         public async Task LoadMessages(NeuronMain neuronMain)
@@ -212,7 +211,7 @@ namespace Neuron
                 );
             });
         }
-        public async void SendMessage(string MessageText, HubConnection hubConnection)
+        public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection)
         {
             ChatMessage message = new ChatMessage();
             if (NeuronMain.clicked.Type == 0)
