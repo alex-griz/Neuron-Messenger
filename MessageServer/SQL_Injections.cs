@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Security.Cryptography;
 namespace NeuronServer
 {
     public static class SQL_Injections
@@ -267,15 +268,23 @@ namespace NeuronServer
         }
         public static int AddContact(string target_username, HttpContext context)
         {
+            using var aes = Aes.Create();
+            aes.KeySize = 256;
+            aes.GenerateKey();
+            byte[] key = aes.Key;
+
             UserCache.last_chat_id +=1;
             string username = context.User.FindFirst("username")?.Value;
+            byte[] encrypted_key = Encrypt_key(key,username);
 
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`,`SecondMember`, `Role`) VALUES (@CI , @ME,@SM, @R)", connection);
+            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`,`SecondMember`, `Role`, `Aes`) VALUES (@CI , @ME,@SM, @R, @A)", connection);
             command.Parameters.Add("@CI", MySqlDbType.Int16).Value = UserCache.last_chat_id;
             command.Parameters.Add("@ME", MySqlDbType.VarChar).Value = username;
             command.Parameters.Add("@SM", MySqlDbType.VarChar).Value = target_username;
             command.Parameters.Add("@R", MySqlDbType.Int16).Value = 1;
+            command.Parameters.AddWithValue("@A", encrypted_key);
+            
 
             try
             {
@@ -284,6 +293,7 @@ namespace NeuronServer
 
                 command.Parameters["@ME"].Value = target_username;
                 command.Parameters["@SM"].Value = username;
+                command.Parameters["@A"].Value = Encrypt_key(key,target_username);
                 command.ExecuteNonQuery();
 
                 command.CommandText = "INSERT INTO `ChatBase` (`ChatID`, `ChatName`, `Description`, `Photo` , `Type`) VALUES (@CI, NULL, NULL, NULL, 0)";
@@ -298,13 +308,21 @@ namespace NeuronServer
         }
         public static int AddGroup(string name, HttpContext context)
         {
+            using var aes = Aes.Create();
+            aes.KeySize = 256;
+            aes.GenerateKey();
+            byte[] key = aes.Key;
+            byte[] encrypted_key  = Encrypt_key(key, context.User.FindFirst("username")?.Value);
+
             UserCache.last_chat_id +=1;
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`) VALUES (@CI , @ME, @R)", connection);
+            using var command = new MySqlCommand("INSERT INTO `contactbase` (`ChatID`, `Member`, `Role`, `Aes`) VALUES (@CI , @ME, @R, @A)", connection);
             
+            command.Parameters.Clear();
             command.Parameters.AddWithValue("@CI", UserCache.last_chat_id);
             command.Parameters.AddWithValue("@ME", context.User.FindFirst("username")?.Value);
             command.Parameters.AddWithValue("@R", 1);
+            command.Parameters.AddWithValue("@A", encrypted_key);
 
             try
             {
@@ -347,6 +365,20 @@ namespace NeuronServer
             {
                 return 0;
             }
+        }
+        public static byte[] Encrypt_key(byte[] key,string username)
+        {
+            using var conn = db.GetNewConnection();
+            using var cmd = new MySqlCommand("SELECT `Public_Key` FROM `profilebase` WHERE Username = @U", conn);
+            cmd.Parameters.AddWithValue("@U", username);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            
+            byte[] creator_key = (byte[])reader["Public_Key"];
+
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(creator_key, out _);
+            return rsa.Encrypt(key, RSAEncryptionPadding.OaepSHA256);
         }
     }
 }
