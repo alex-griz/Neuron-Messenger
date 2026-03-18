@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,17 +38,14 @@ namespace Neuron
 
             hubConnection.On<ChatMessage>("GetMessage", (message) =>
             {
-                var package = new EncryptedPackage { EncryptedAesKey = Convert.FromBase64String(message.AesKey),
-                    EncryptedData = Convert.FromBase64String(message.Message)
-                    , Iv = Convert.FromBase64String(message.Iv) };
-                message.Message = Commands.DecryptMessage(package, Convert.FromBase64String(MainWindow.private_key));
+                string message_text = Commands.DecryptMessage(message.Message, chatCache[message.ChatID].Aes_key, message.Iv);
                 if (message.ChatID == ChooseContact)
                 {
-                    commands.UpdateMessages(this, message);
+                    commands.UpdateMessages(this, message, message_text);
                 }
                 else
                 {
-                    MessageBox.Show(message.Sender+message.Message, chatCache[message.ChatID].Name, MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(message.Sender+ message_text, chatCache[message.ChatID].Name, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             });
 
@@ -194,7 +192,7 @@ namespace Neuron
                 }
             }
         }
-        public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage)
+        public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage, string decrypted_text)
         {
             if (chatMessage.Date != CurrentDate)
             {
@@ -207,40 +205,21 @@ namespace Neuron
             Application.Current.Dispatcher.Invoke(() =>
             {
                 neuronMain.MessagesField.Items.Add(
-                    $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{chatMessage.Message}\n\n{chatMessage.Time}"
+                    $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}"
                 );
             });
         }
         public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection)
         {
+            var encrypted_data = EncryptMessage(MessageText, neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key);
             ChatMessage message = new ChatMessage();
-            if (NeuronMain.clicked.Type == 0)
-            {
-                string key = "";
-                if (MembersList.users[0].Name == MainWindow.Login)
-                {
-                    key = neuronMain.userCache[MembersList.users[1].Name].public_key;
-                }
-                else
-                {
-                    key = neuronMain.userCache[MembersList.users[0].Name].public_key;
-                }
-                var encryptedPackage = EncryptMessage(MessageText, Convert.FromBase64String(key));
-                message.Message = Convert.ToBase64String(encryptedPackage.EncryptedData);
-                message.AesKey = Convert.ToBase64String(encryptedPackage.EncryptedAesKey);
-                message.Iv = Convert.ToBase64String(encryptedPackage.Iv);
-            }
-            else
-            {
-                message.Message = MessageText;
-                message.AesKey = "";
-                message.Iv = "";
-            }
-
+            
             message.ChatID = NeuronMain.ChooseContact;
             message.Sender = MainWindow.Login;
+            message.Message = encrypted_data.Message;
             message.Time = DateTime.Now.ToString("HH:mm");
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
+            message.Iv = encrypted_data.Iv;
 
             await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
         }
@@ -266,6 +245,7 @@ namespace Neuron
             {
                 string name = row[1].ToString();
                 int ChatID = Convert.ToInt32(row[0]);
+                byte[] Aes = (byte[])row[2];
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -273,7 +253,8 @@ namespace Neuron
                     {
                         Name = name,
                         Type = 0,
-                        ImagePath = ""
+                        ImagePath = "",
+                        Aes_key = Aes
                     };
                     var contact = new ContactButton
                     {
@@ -289,6 +270,7 @@ namespace Neuron
                 string name = row[1].ToString();
                 int ChatID = Convert.ToInt32(row[0]);
                 int type = Convert.ToInt16(row[2]);
+                byte[] Aes = (byte[])row[3];
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -296,7 +278,8 @@ namespace Neuron
                     {
                         Name = name,
                         Type = type,
-                        ImagePath = ""
+                        ImagePath = "",
+                        Aes_key = Aes
                     };
                     var contact = new ContactButton
                     {
@@ -340,52 +323,36 @@ namespace Neuron
                 MembersList.users.Add(new CheckItem { Name = username, IsSelected = false });
             }
         }
-        public static EncryptedPackage EncryptMessage(string message, byte[] recipientPublicKey)
+        public static EncryptedMessage EncryptMessage(string message, byte[] chat_aes_key)
         {
-            using var rsa = RSA.Create();
-            rsa.ImportRSAPublicKey(recipientPublicKey, out _);
-
             using var aes = Aes.Create();
-            aes.KeySize = 256;
-            aes.GenerateKey();
+            aes.Key = chat_aes_key;
             aes.GenerateIV();
 
-            byte[] plaintextBytes = Encoding.UTF8.GetBytes(message);
-            byte[] encryptedData;
+            byte[] message_bytes = Encoding.UTF8.GetBytes(message);
 
-            using (var ms = new MemoryStream())
-            using (var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+            using var ms = new MemoryStream();
+            using var cs = new CryptoStream(ms , aes.CreateEncryptor(), CryptoStreamMode.Write);
+            cs.Write(message_bytes, 0, message_bytes.Length);
+            cs.FlushFinalBlock();
+
+            return new EncryptedMessage
             {
-                cs.Write(plaintextBytes, 0, plaintextBytes.Length);
-                cs.FlushFinalBlock();
-                encryptedData = ms.ToArray();
-            }
-
-            byte[] encryptedAesKey = rsa.Encrypt(aes.Key, RSAEncryptionPadding.OaepSHA256);
-
-            return new EncryptedPackage
-            {
-                EncryptedAesKey = encryptedAesKey,
-                Iv = aes.IV,
-                EncryptedData = encryptedData
+                Message = ms.ToArray(),
+                Iv = aes.IV
             };
         }
-        public static string DecryptMessage(EncryptedPackage package, byte[] recipientPrivateKey)
+        public static string DecryptMessage(byte[] encrypted_message, byte[] aes_key, byte[] Iv)
         {
-            using var rsa = RSA.Create();
-            rsa.ImportRSAPrivateKey(recipientPrivateKey, out _);
-            byte[] aesKey = rsa.Decrypt(package.EncryptedAesKey, RSAEncryptionPadding.OaepSHA256);
-
             using var aes = Aes.Create();
-            aes.Key = aesKey;
-            aes.IV = package.Iv;
+            aes.Key = aes_key;
+            aes.IV = Iv;
 
-            using (var ms = new MemoryStream(package.EncryptedData))
-            using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read))
-            using (var sr = new StreamReader(cs, Encoding.UTF8))
-            {
-                return sr.ReadToEnd();
-            }
+            using var ms = new MemoryStream(encrypted_message);
+            using var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            using var sr = new StreamReader(cs, Encoding.UTF8);
+
+            return sr.ReadToEnd();
         }
     }
     public class ContactButton
@@ -398,17 +365,17 @@ namespace Neuron
     {
         public int ChatID { get; set; }
         public string Sender { get; set; }
-        public string Message { get; set; }
+        public byte[] Message { get; set; }
         public string Time { get; set; }
         public string Date { get; set; }
-        public string AesKey { get; set; }
-        public string Iv { get; set; }
+        public byte[] Iv { get; set; }
     }
     public class ChatData()
     {
         public string Name { get; set; }
         public int Type { get; set; }
         public string ImagePath { get; set; }
+        public byte[] Aes_key { get; set; }
     }
     public class UserData()
     {
@@ -416,10 +383,9 @@ namespace Neuron
         public string public_key { get; set; }
         //public string ImagePath { get; set; }
     }
-    public class EncryptedPackage
+    public class EncryptedMessage
     {
-        public byte[] EncryptedAesKey { get; set; }
+        public byte[] Message { get; set; }
         public byte[] Iv { get; set; }
-        public byte[] EncryptedData { get; set; }
     }
 }
