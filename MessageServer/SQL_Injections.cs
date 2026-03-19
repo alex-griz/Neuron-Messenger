@@ -373,7 +373,7 @@ namespace NeuronServer
             cmd.Parameters.AddWithValue("@U", username);
             conn.Open();
             using var reader = cmd.ExecuteReader();
-            
+            reader.Read();
             byte[] creator_key = (byte[])reader["Public_Key"];
 
             using var rsa = RSA.Create();

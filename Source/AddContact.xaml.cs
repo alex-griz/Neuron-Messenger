@@ -14,6 +14,7 @@ namespace Neuron
             string username = ContactUsername.Text;
 
             var response = await MainWindow.client.PostAsync($"http://localhost:5156/AddContact?target_username={username}", null);
+            
             var result = int.Parse(await response.Content.ReadAsStringAsync());
             switch (result)
             {

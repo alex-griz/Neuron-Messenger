@@ -13,7 +13,7 @@ namespace Neuron
     {
         public static HttpClient client = new HttpClient();
         public static string Login;
-        public static string private_key = "";
+        public static byte[] private_key;
         public static string Jwt_Security_Token = "";
         public MainWindow()
         {
@@ -55,8 +55,7 @@ namespace Neuron
                     }
                     string security_key = File.ReadAllText($"Security_keys/{Login}.txt");
                     byte[] encryptedPrivateKey = Convert.FromBase64String(data.private_encrypt_key);
-                    byte[] privateKeyBytes = AES_Decrypt(encryptedPrivateKey, security_key);
-                    private_key = Convert.ToBase64String(privateKeyBytes);
+                    private_key = AES_Decrypt(encryptedPrivateKey, security_key);
                     NeuronMain window = new NeuronMain();
                     window.Show();
                     this.Hide();

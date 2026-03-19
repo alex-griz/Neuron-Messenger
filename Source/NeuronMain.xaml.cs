@@ -172,20 +172,20 @@ namespace Neuron
             neuronMain.MessagesField.Items.Clear();
             if (MessageList.Rows.Count != 0)
             {
-                CurrentDate = MessageList.Rows[0][4].ToString();
+                CurrentDate = MessageList.Rows[0][3].ToString();
                 neuronMain.MessagesField.Items.Add(CurrentDate);
                 for (int i = 0; i < MessageList.Rows.Count; i++)
                 {
                     string sender = MessageList.Rows[i][1].ToString();
-                    string message = MessageList.Rows[i][2].ToString();
-                    string time = MessageList.Rows[i][3].ToString();
-                    if (MessageList.Rows[i][4].ToString() == CurrentDate) 
+                    string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
+                    string time = MessageList.Rows[i][2].ToString();
+                    if (MessageList.Rows[i][3].ToString() == CurrentDate) 
                     {
                         neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
                     else
                     {
-                        CurrentDate = MessageList.Rows[i][4].ToString();
+                        CurrentDate = MessageList.Rows[i][3].ToString();
                         neuronMain.MessagesField.Items.Add(CurrentDate);
                         neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
                     }
@@ -240,12 +240,14 @@ namespace Neuron
             adapter.Fill(UserContactsList);
 
             var uniqueChats = new HashSet<int>();
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(MainWindow.private_key, out _);
 
             foreach (DataRow row in UserContactsList.Rows)
             {
                 string name = row[1].ToString();
                 int ChatID = Convert.ToInt32(row[0]);
-                byte[] Aes = (byte[])row[2];
+                byte[] Aes = rsa.Decrypt((byte[])row[2], RSAEncryptionPadding.OaepSHA256);
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -270,7 +272,7 @@ namespace Neuron
                 string name = row[1].ToString();
                 int ChatID = Convert.ToInt32(row[0]);
                 int type = Convert.ToInt16(row[2]);
-                byte[] Aes = (byte[])row[3];
+                byte[] Aes = rsa.Decrypt((byte[])row[3], RSAEncryptionPadding.OaepSHA256);
 
                 if (uniqueChats.Add(ChatID))
                 {

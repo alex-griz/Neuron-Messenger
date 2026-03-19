@@ -43,7 +43,7 @@ public class ChatHub: Hub
 
         command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
         command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
-        command.Parameters.Add("@M", MySqlDbType.Text).Value = message.Message;
+        command.Parameters.Add("@M", MySqlDbType.LongBlob).Value = message.Message;
         command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
         command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
         command.Parameters.AddWithValue("@Iv", message.Iv);
@@ -63,8 +63,8 @@ public class ChatMessage
 {
     public int ChatID {get; set;}
     public string Sender {get; set;}
-    public string Message {get; set;}
+    public byte[] Message {get; set;}
     public string Time {get; set;}
     public string Date {get; set;}
-    public string Iv { get; set; }
+    public byte[] Iv { get; set; }
 }
