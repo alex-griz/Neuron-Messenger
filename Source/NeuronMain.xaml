@@ -5,48 +5,374 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Neuron"
         mc:Ignorable="d"
-        Title="Neuron - Мессенджер" Height="800" Width="1400" ResizeMode="CanMinimize">
-    <Grid>
-        <Canvas>
-            <Canvas.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF22002E"/>
-                    <GradientStop Color="#FF3B0150" Offset="1"/>
-                </LinearGradientBrush>
-            </Canvas.Background>
-            <ListBox x:Name="ChatList" Height="565" Width="300" HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="White" BorderBrush="{x:Null}" FontFamily="Bahnschrift Light Condensed" FontSize="36" Canvas.Top="190" Canvas.Left="5" SelectionMode="Single">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Button Content ="{Binding ButtonName}" Tag ="{Binding ChatID}" Width="280" Height="50" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="SelectContact"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <ListBox x:Name="MessagesField" Height="630" Width="1075" HorizontalAlignment="Center" Canvas.Left="310" VerticalAlignment="Top" Canvas.Top="65" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20"></Label>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <Label x:Name="HeadNameLabel" Content="" Canvas.Left="310" Canvas.Top="10" Height="54" Width="750" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="36" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox x:Name="MessageField" Canvas.Left="310" TextWrapping="Wrap" Text="Сообщение..." Canvas.Top="695" Width="975" RenderTransformOrigin="0.521,1.032" Background="{x:Null}" BorderBrush="White" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Height="60" UndoLimit="512"/>
-            <Button x:Name="SendButton"  Content="🢁" Canvas.Left="1290" Canvas.Top="695" RenderTransformOrigin="-0.149,0.057" Height="60" Width="95" Background="{x:Null}" BorderBrush="White" Foreground="White" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Top" Click="SendMessage"/>
-            <Expander Height="120" Header="Добавить" Canvas.Left="80" Canvas.Top="65" Width="150" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.639,0.538" FontFamily="Bahnschrift Light Condensed" FontSize="36">
-                <StackPanel Margin="0,0,0,-48">
-                    <Button Background="#7F9B9B9B" Foreground="White" BorderBrush="{x:Null}" Content="Контакт" Click="Add_Contact" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20"></Button>
-                    <Button Background="#7F9B9B9B" BorderBrush="{x:Null}" Foreground="White" Content="Группа" Click="Add_Group" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="20"></Button>
-                </StackPanel>
-            </Expander>
-            <Expander Height="123" Header="Настройки" Canvas.Top="20" Width="110" FontFamily="Bahnschrift Light Condensed" FontSize="24" Foreground="White" HorizontalAlignment="Center" Canvas.Left="10" VerticalAlignment="Top">
-                <StackPanel>
-                    <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Профиль" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}" Click="OpenProfileEditor"></Button>
-                    <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Интерфейс" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}"></Button>
-                    <Button Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="Выйти" Background="#7F9B9B9B" OpacityMask="White" Height="30" BorderBrush="{x:Null}" Click="LogOut"></Button>
-                </StackPanel>
-            </Expander>
-            <Button x:Name="MembersButton" Content="Свойства" Canvas.Left="1065" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="OpenChatFeatures" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Top="5"/>
-            <Button x:Name="DeleteButton" Content="Удалить" Canvas.Left="1160" Width="90" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="DeleteChat" Canvas.Top="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-        </Canvas>
+        Title="Neuron - Мессенджер" 
+        Height="800" 
+        Width="1400" 
+        MinHeight="600"
+        MinWidth="900"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen">
 
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="GlassButton">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#50FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ListBox" x:Key="GlassListBox">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15">
+                            <ScrollViewer>
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox" x:Key="GlassTextBox">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="10"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Label" x:Key="GlassLabel">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Label">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Expander" x:Key="GlassExpander">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Bahnschrift Light Condensed"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{TemplateBinding Background}"
+                        CornerRadius="10">
+                            <StackPanel>
+                                <ToggleButton x:Name="HeaderSite"
+                                      Content="{TemplateBinding Header}"
+                                      FontFamily="{TemplateBinding FontFamily}"
+                                      FontSize="{TemplateBinding FontSize}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Padding="10,5"
+                                      HorizontalAlignment="Stretch"
+                                      Cursor="Hand"
+                                      IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                <ContentPresenter x:Name="ExpandSite" 
+                                          Visibility="Collapsed"
+                                          Margin="10,5"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF22002E"/>
+                <GradientStop Color="#FF3B0150" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" MinWidth="500"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Expander Grid.Row="0" 
+                      Style="{StaticResource GlassExpander}"
+                      Header="Настройки" 
+                      Height="Auto"
+                      FontFamily="Cascadia Code" 
+                      FontSize="36" 
+                      Foreground="White"
+                      Margin="0,0,0,10" Background="#208C8C8C">
+                <StackPanel>
+                    <Button Foreground="White" 
+                            FontFamily="Bahnschrift Light Condensed" 
+                            FontSize="20" 
+                            Content="Профиль" 
+                            Background="Transparent" 
+                            Height="30" 
+                            BorderBrush="{x:Null}" 
+                            Click="OpenProfileEditor"
+                            HorizontalAlignment="Left"/>
+                    <Button Foreground="White" 
+                            FontFamily="Bahnschrift Light Condensed" 
+                            FontSize="20" 
+                            Content="Интерфейс" 
+                            Background="Transparent" 
+                            Height="30" 
+                            BorderBrush="{x:Null}"
+                            HorizontalAlignment="Left"/>
+                    <Button Foreground="White" 
+                            FontFamily="Bahnschrift Light Condensed" 
+                            FontSize="20" 
+                            Content="Выйти" 
+                            Background="Transparent" 
+                            Height="30" 
+                            BorderBrush="{x:Null}" 
+                            Click="LogOut"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+
+            <Expander Grid.Row="1" 
+                      Style="{StaticResource GlassExpander}"
+                      Header="Добавить" 
+                      Height="Auto"
+                      FontFamily="Cascadia Code" 
+                      FontSize="36" 
+                      Foreground="White"
+                      Margin="0,0,0,10" Background="#208C8C8C">
+                <StackPanel>
+                    <Button Background="Transparent" 
+                            Foreground="White" 
+                            BorderBrush="{x:Null}" 
+                            Content="Контакт" 
+                            Height="30" 
+                            FontFamily="Cascadia Code" 
+                            FontSize="20" 
+                            Click="Add_Contact"
+                            HorizontalAlignment="Left"/>
+                    <Button Background="Transparent" 
+                            BorderBrush="{x:Null}" 
+                            Foreground="White" 
+                            Content="Группа" 
+                            Height="30" 
+                            FontFamily="Cascadia Code" 
+                            FontSize="20" 
+                            Click="Add_Group"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+
+            <ListBox x:Name="ChatList" 
+                     Grid.Row="2"
+                     Style="{StaticResource GlassListBox}"
+                     Foreground="White" 
+                     FontFamily="Cascadia Code" 
+                     FontSize="36" 
+                     SelectionMode="Single"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#208C8C8C">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding ButtonName}" 
+                                Tag="{Binding ChatID}" 
+                                Height="60" 
+                                Background="Transparent" 
+                                BorderBrush="{x:Null}" 
+                                Foreground="White" 
+                                FontFamily="Cascadia Code" 
+                                FontSize="24" 
+                                Click="SelectContact"
+                                HorizontalAlignment="Stretch"
+                                Margin="5,3"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="HeadNameLabel" 
+                       Grid.Column="0"
+                       Style="{StaticResource GlassLabel}"
+                       Content="" 
+                       Foreground="White" 
+                       FontFamily="Cascadia Code" 
+                       FontSize="36" 
+                       Height="60" Background="#208C8C8C"/>
+
+                <Button x:Name="MembersButton" 
+                        Grid.Column="1"
+                        Style="{StaticResource GlassButton}"
+                        Content="Свойства" 
+                        Width="90" 
+                        Height="40" 
+                        Foreground="White" 
+                        FontFamily="Cascadia Code" 
+                        FontSize="18" 
+                        Click="OpenChatFeatures"
+                        Margin="5,0" Background="#208C8C8C"/>
+
+                <Button x:Name="DeleteButton" 
+                        Grid.Column="2"
+                        Style="{StaticResource GlassButton}"
+                        Content="Удалить" 
+                        Width="90" 
+                        Height="40" 
+                        Foreground="White" 
+                        FontFamily="Cascadia Code" 
+                        FontSize="18" 
+                        Click="DeleteChat" Background="#208C8C8C"/>
+            </Grid>
+
+            <ListBox x:Name="MessagesField"
+                     Grid.Row="1"
+                     Style="{StaticResource GlassListBox}"
+                     Foreground="White"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" Background="#208C8C8C" FontFamily="Cascadia Code" FontSize="16">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Label Content="{Binding}" 
+                               Foreground="White" 
+                               FontFamily="Cascadia Code" 
+                               FontSize="20"
+                               Margin="10,5"
+                               Background="Transparent"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="MessageField" 
+                         Grid.Column="0"
+                         Style="{StaticResource GlassTextBox}"
+                         TextWrapping="Wrap" 
+                         Text="Сообщение..." 
+                         Foreground="White" 
+                         FontFamily="Cascadia Code" 
+                         FontSize="20" 
+                         Height="60" 
+                         UndoLimit="512"
+                         VerticalAlignment="Center"
+                         Margin="0,0,10,0" Background="#208C8C8C"/>
+
+                <Button x:Name="SendButton"  
+                        Grid.Column="1"
+                        Style="{StaticResource GlassButton}"
+                        Content="🢁" 
+                        Height="60" 
+                        Width="95" 
+                        Foreground="White" 
+                        FontSize="36" 
+                        Click="SendMessage" Background="#208C8C8C"/>
+            </Grid>
+        </Grid>
     </Grid>
-</Window> 
+</Window>
