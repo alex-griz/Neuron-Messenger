@@ -85,6 +85,15 @@ namespace NeuronServer
                 var result = SQL_Injections.Registration(username, name, password, public_key, private_key);
                 return result.ToString();
             });
+            app.MapPost("/Upload", async ( string type, HttpContext context) =>
+            {
+                using var ms = new MemoryStream();
+                await context.Request.Body.CopyToAsync(ms);
+                byte[] data = ms.ToArray();
+
+                string result = await SQL_Injections.UploadData(type, data);
+                return  Results.Text(result);
+            });
             
             await UserCache.LoadUsersData();
             

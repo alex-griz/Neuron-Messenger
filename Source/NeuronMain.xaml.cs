@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Win32;
 using MySql.Data.MySqlClient;
 using System.Collections.Concurrent;
 using System.Data;
 using System.IO;
+using System.Net.Http;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -101,6 +101,30 @@ namespace Neuron
             {
                 MembersList window = new MembersList();
                 window.Show();
+            }
+        }
+        private async void AttachFile(object sender, RoutedEventArgs e) 
+        {
+            var dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                string filePath = dialog.FileName;
+                string type = filePath.Split('.').Last();
+                var content = new ByteArrayContent(await File.ReadAllBytesAsync(filePath));
+                var response = await MainWindow.client.PostAsync($"http://localhost:5156/Upload?type={type}", content);
+                var result = await response.Content.ReadAsStringAsync();
+
+                switch (result)
+                {
+                    case "0":
+                        MessageBox.Show("Ошибка во время загрузки файла", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    case "2":
+                        MessageBox.Show("Размер файла превышает 100 Мб", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         private void OpenProfileEditor(object sender, RoutedEventArgs e)

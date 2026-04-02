@@ -346,32 +346,47 @@
 
             <Grid Grid.Row="2" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
+                <Button x:Name="AttachButton"
+            Grid.Column="0"
+            Style="{StaticResource GlassButton}"
+            Content="📄"
+            Width="60"
+            Height="60"
+            FontSize="28"
+            Foreground="White"
+            Margin="0,0,10,0"
+            Background="#208C8C8C"
+            Click="AttachFile"/>
+
                 <TextBox x:Name="MessageField" 
-                         Grid.Column="0"
-                         Style="{StaticResource GlassTextBox}"
-                         TextWrapping="Wrap" 
-                         Text="Сообщение..." 
-                         Foreground="White" 
-                         FontFamily="Cascadia Code" 
-                         FontSize="20" 
-                         Height="60" 
-                         UndoLimit="512"
-                         VerticalAlignment="Center"
-                         Margin="0,0,10,0" Background="#208C8C8C"/>
+             Grid.Column="1"
+             Style="{StaticResource GlassTextBox}"
+             TextWrapping="Wrap" 
+             Text="Сообщение..." 
+             Foreground="White" 
+             FontFamily="Cascadia Code" 
+             FontSize="20" 
+             Height="60" 
+             UndoLimit="512"
+             VerticalAlignment="Center"
+             Margin="0,0,10,0" 
+             Background="#208C8C8C"/>
 
                 <Button x:Name="SendButton"  
-                        Grid.Column="1"
-                        Style="{StaticResource GlassButton}"
-                        Content="🢁" 
-                        Height="60" 
-                        Width="95" 
-                        Foreground="White" 
-                        FontSize="36" 
-                        Click="SendMessage" Background="#208C8C8C"/>
+            Grid.Column="2"
+            Style="{StaticResource GlassButton}"
+            Content="🢁" 
+            Height="60" 
+            Width="95" 
+            Foreground="White" 
+            FontSize="36" 
+            Click="SendMessage" 
+            Background="#208C8C8C"/>
             </Grid>
         </Grid>
     </Grid>
