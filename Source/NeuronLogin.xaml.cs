@@ -22,8 +22,16 @@ namespace Neuron
             SaveLoginData loginData = ReadLoginData();
             if (loginData.Login != null)
             {
-                Login = loginData.Login;
-                LoginFunction(loginData.Password);
+                try
+                {
+                    string key = File.ReadAllText($"Security_keys/{Login}.txt");
+                    Login = loginData.Login;
+                    LoginFunction(loginData.Password, key);
+                }
+                catch
+                {
+                    MessageBox.Show("Ошибка авторизации. Введите ключ доступа", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -31,38 +39,52 @@ namespace Neuron
         {
             Login = LoginBox.Text;
             string Password = PasswordBox.Password;
-
-            LoginFunction(Password);
-        }
-        private async void LoginFunction(string Password)
-        {
-            var response = await client.GetAsync($"http://localhost:5156/Login?username={Login}&password={Password}");
-            var result = await response.Content.ReadAsStringAsync();
-            var data = JsonSerializer.Deserialize<LoginResult>(result);
-
-            switch (data.status)
+            string key = "";
+            try
             {
-                case 0:
-                    MessageBox.Show("Возникла ошибка на сервере авторизации. Повторите попытку позже.", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                    break;
-                case 1:
-                    Jwt_Security_Token = data.token;
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.token);
-                    if (SaveLogin.IsChecked == true)
-                    {
-                        var loginData = new SaveLoginData { Login = Login, Password = Password };
-                        WriteLogin(loginData);
-                    }
-                    string security_key = File.ReadAllText($"Security_keys/{Login}.txt");
-                    byte[] encryptedPrivateKey = Convert.FromBase64String(data.private_encrypt_key);
-                    private_key = AES_Decrypt(encryptedPrivateKey, security_key);
-                    NeuronMain window = new NeuronMain();
-                    window.Show();
-                    this.Hide();
-                    break;
-                case 2:
-                    MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
-                    break;
+                key = File.ReadAllText($"Security_keys/{Login}.txt");
+            }
+            catch
+            {
+                key = Security_key_box.Text;
+            }
+            LoginFunction(Password, key);
+        }
+        private async void LoginFunction(string Password, string security_key)
+        {
+            if (security_key == "")
+            {
+                MessageBox.Show("Ошибка авторизации. Введите ключ доступа", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+            }
+            else
+            {
+                var response = await client.GetAsync($"http://localhost:5156/Login?username={Login}&password={Password}");
+                var result = await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<LoginResult>(result);
+
+                switch (data.status)
+                {
+                    case 0:
+                        MessageBox.Show("Возникла ошибка на сервере авторизации. Повторите попытку позже.", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                        break;
+                    case 1:
+                        Jwt_Security_Token = data.token;
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data.token);
+                        if (SaveLogin.IsChecked == true)
+                        {
+                            var loginData = new SaveLoginData { Login = Login, Password = Password };
+                            WriteLogin(loginData);
+                        }
+                        byte[] encryptedPrivateKey = Convert.FromBase64String(data.private_encrypt_key);
+                        private_key = AES_Decrypt(encryptedPrivateKey, security_key);
+                        NeuronMain window = new NeuronMain();
+                        window.Show();
+                        this.Hide();
+                        break;
+                    case 2:
+                        MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка авторизации", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+                        break;
+                }
             }
         }
 
@@ -112,7 +134,7 @@ namespace Neuron
             }
         }
     }
-    public class SaveLoginData()
+    public class SaveLoginData
     {
         public string Login { get; set; }
         public string Password { get; set; }
