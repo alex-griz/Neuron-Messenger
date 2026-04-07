@@ -14,19 +14,19 @@
                     <GradientStop Color="#FF3B0150" Offset="1"/>
                 </LinearGradientBrush>
             </Canvas.Background>
-            <Label Content="Участники" Canvas.Top="78" Height="32" Width="96" Foreground="White" FontFamily="Bahnschrift Light Condensed" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.Left="152"/>
-            <Button Content="Добавить" Canvas.Left="112" Canvas.Top="465" BorderBrush="White" Background="{x:Null}" Foreground="White" Height="30" Width="176" FontFamily="Bahnschrift Light Condensed" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
-            <ListBox x:Name="MembersListBox" Height="350" Width="200" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Center" Canvas.Top="110" VerticalAlignment="Top" Canvas.Left="100">
+            <Label Content="Участники" Canvas.Top="73" Height="32" Width="136" Foreground="White" FontFamily="Cascadia Code" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Left="132"/>
+            <Button Content="Добавить" Canvas.Left="112" Canvas.Top="465" BorderBrush="{x:Null}" Background="#208C8C8C" Foreground="White" Height="30" Width="176" FontFamily="Cascadia Code" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
+            <ListBox x:Name="MembersListBox" Height="350" Width="200" Background="#208C8C8C" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Center" Canvas.Top="110" VerticalAlignment="Top" Canvas.Left="100">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox Foreground="White" BorderBrush="White" Height="30" Width="150" FontFamily="Bahnschrift Light Condensed" FontSize="20" Content="{Binding Name}" IsChecked ="{Binding IsSelected}"/>
+                        <CheckBox Foreground="White" BorderBrush="White" Height="30" Width="150" FontFamily="Cascadia Code" FontSize="20" Content="{Binding Name}" IsChecked ="{Binding IsSelected}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Button Content="Удалить" Canvas.Left="112" Canvas.Top="535" BorderBrush="White" Background="{x:Null}" Foreground="White" Height="30" Width="176" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="DeleteMember" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Button Content="Назначить админом" Canvas.Left="112" Canvas.Top="500" BorderBrush="White" Background="{x:Null}" Foreground="White" Height="30" Width="176" FontFamily="Bahnschrift Light Condensed" FontSize="24" Click="MakeAdmin" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox x:Name="NameBox" Canvas.Left="125" TextWrapping="Wrap" Canvas.Top="25" Width="150" Background="{x:Null}" BorderBrush="White" Foreground="White" Height="30" FontFamily="Bahnschrift Light Condensed" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Button x:Name="SaveButton" Content="OK" Canvas.Left="286" Canvas.Top="25" Background="{x:Null}" BorderBrush="White" Foreground="White" Height="30" Width="50" FontFamily="Bahnschrift Light Condensed" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.122,0.691" Click="SaveButton_Click"/>
+            <Button Content="Удалить" Canvas.Left="112" Canvas.Top="535" BorderBrush="{x:Null}" Background="#208C8C8C" Foreground="White" Height="30" Width="176" FontFamily="Cascadia Code" FontSize="24" Click="DeleteMember" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Button Content="Назначить админом" Canvas.Left="112" Canvas.Top="500" BorderBrush="{x:Null}" Background="#208C8C8C" Foreground="White" Height="30" Width="176" FontFamily="Cascadia Code" FontSize="16" Click="MakeAdmin" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox x:Name="NameBox" Canvas.Left="125" TextWrapping="Wrap" Canvas.Top="25" Width="150" BorderBrush="{x:Null}" Background="#208C8C8C" Foreground="White" Height="30" FontFamily="Cascadia Code" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Button x:Name="SaveButton" Content="OK" Canvas.Left="286" Canvas.Top="25" BorderBrush="{x:Null}" Background="#208C8C8C" Foreground="White" Height="30" Width="50" FontFamily="Cascadia Code" FontSize="24" HorizontalAlignment="Left" VerticalAlignment="Center" Click="SaveButton_Click"/>
         </Canvas>
     </Grid>
 </Window>
