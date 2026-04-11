@@ -382,7 +382,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Ответить" />
-                        <MenuItem Header="Удалить" />
+                        <MenuItem Header="Удалить" Click="DeleteMessage"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>

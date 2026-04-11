@@ -176,6 +176,33 @@ namespace Neuron
                 }
             }
         }
+        private async void DeleteMessage(object sender, RoutedEventArgs e)
+        {
+            var selected = MessagesField.SelectedItem as ListBoxItem;
+            if (selected != null && selected.Tag != null)
+            {
+                var response = await MainWindow.client.DeleteAsync($"http://localhost:5156/DeleteMessage?ChatId={ChooseContact}&MessageId={selected.Tag.ToString()}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    string error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Ошибка: {response.StatusCode}\n{error}", "Ошибка", MessageBoxButton.OK);
+                    return;
+                }
+                var result = int.Parse(await response.Content.ReadAsStringAsync());
+                switch (result)
+                {
+                    case 0:
+                        MessageBox.Show("Ошибка на стороне сервера", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    case 1:
+                        MessagesField.Items.Remove(MessagesField.SelectedItem);
+                        break;
+                    case 2:
+                        MessageBox.Show("Недостаточно прав для удаления сообщений в этом чате", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                }
+            }
+        }
     }
     public class Commands()
     {
@@ -203,15 +230,21 @@ namespace Neuron
                     string sender = MessageList.Rows[i][1].ToString();
                     string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
                     string time = MessageList.Rows[i][2].ToString();
+                    var item = new ListBoxItem();
+                    item.Content = neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time;
+                    if (MessageList.Rows[i][6].ToString() != null)
+                    {
+                        item.Tag = MessageList.Rows[i][6].ToString();
+                    }
                     if (MessageList.Rows[i][3].ToString() == CurrentDate) 
                     {
-                        neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
+                        neuronMain.MessagesField.Items.Add(item);
                     }
                     else
                     {
                         CurrentDate = MessageList.Rows[i][3].ToString();
                         neuronMain.MessagesField.Items.Add(CurrentDate);
-                        neuronMain.MessagesField.Items.Add(neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time);
+                        neuronMain.MessagesField.Items.Add(item);
                     }
                 }
             }
@@ -228,9 +261,10 @@ namespace Neuron
             }
             Application.Current.Dispatcher.Invoke(() =>
             {
-                neuronMain.MessagesField.Items.Add(
-                    $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}"
-                );
+                var item = new ListBoxItem();
+                item.Content = $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}";
+                item.Tag = chatMessage.MessageID;
+                neuronMain.MessagesField.Items.Add(item);
             });
         }
         public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection)
@@ -238,6 +272,7 @@ namespace Neuron
             var encrypted_data = EncryptMessage(MessageText, neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key);
             ChatMessage message = new ChatMessage();
             
+            message.MessageID = Guid.NewGuid().ToString();
             message.ChatID = NeuronMain.ChooseContact;
             message.Sender = MainWindow.Login;
             message.Message = encrypted_data.Message;
@@ -389,12 +424,14 @@ namespace Neuron
     }
     public class ChatMessage
     {
+        public string MessageID { get; set;}
         public int ChatID { get; set; }
         public string Sender { get; set; }
         public byte[] Message { get; set; }
         public string Time { get; set; }
         public string Date { get; set; }
         public byte[] Iv { get; set; }
+        //public string DataPath { get; set; }
     }
     public class ChatData()
     {

@@ -93,8 +93,9 @@ namespace NeuronServer
 
                 string result = await SQL_Injections.UploadData(type, data);
                 return  Results.Text(result);
-            });
-            
+            }).RequireAuthorization();
+            app.MapDelete("/DeleteMessage", (int ChatId, string MessageId, HttpContext context) => SQL_Injections.DeleteMessage(ChatId, MessageId, context)).RequireAuthorization();
+
             await UserCache.LoadUsersData();
             
             app.Run();

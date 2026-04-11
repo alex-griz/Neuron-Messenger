@@ -39,14 +39,16 @@ public class ChatHub: Hub
             }
         }
         using var connection = db.GetNewConnection();
-        using var command = new MySqlCommand("INSERT INTO `MessageBase` ( `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Iv`) VALUES (@CI ,@S, @M, @T, @D, @Iv )", connection);
+        using var command = new MySqlCommand("INSERT INTO `MessageBase` (`MessageID`, `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Iv`) VALUES (@MI, @CI ,@S, @M, @T, @D, @Iv)", connection);
 
+        command.Parameters.AddWithValue("@MI" , message.MessageID);
         command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
         command.Parameters.Add("@T", MySqlDbType.VarChar).Value = message.Time;
         command.Parameters.Add("@M", MySqlDbType.LongBlob).Value = message.Message;
         command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
         command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
         command.Parameters.AddWithValue("@Iv", message.Iv);
+        //command.Parameters.AddWithValue("@DP", message.DataPath);
 
         try
         {
@@ -61,10 +63,12 @@ public class ChatHub: Hub
 }
 public class ChatMessage
 {
+    public string MessageID {get; set;}
     public int ChatID {get; set;}
     public string Sender {get; set;}
     public byte[] Message {get; set;}
     public string Time {get; set;}
     public string Date {get; set;}
     public byte[] Iv { get; set; }
+    //public string DataPath { get; set; }
 }

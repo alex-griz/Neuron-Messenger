@@ -386,6 +386,31 @@ namespace NeuronServer
                 }
             }
         }
+        public static int DeleteMessage(int ChatID, string MessageID, HttpContext context)
+        {
+            var username = context.User.FindFirst("username")?.Value;
+            if (AdminCheck(ChatID, username))
+            {
+                using var connection = db.GetNewConnection();
+                using var command = new MySqlCommand("DELETE FROM `MessageBase` WHERE `MessageID` = @MI AND `ChatID` = @CI", connection);
+                command.Parameters.AddWithValue("@MI", MessageID);
+                command.Parameters.AddWithValue("@CI", ChatID);
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    return 1;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+            else
+            {
+                return 2;
+            }
+        }
         public static byte[] Encrypt_key(byte[] key,string username)
         {
             using var conn = db.GetNewConnection();
