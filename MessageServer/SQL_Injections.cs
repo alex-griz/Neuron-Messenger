@@ -366,26 +366,6 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public static async Task<string> UploadData(string type, byte[] data)
-        {
-            string unique_name = $"{Guid.NewGuid():N}.{type}";
-            if (data.Length > 100 * 1024 * 1024)
-            {
-                return "2";
-            }
-            else
-            {
-                try
-                {
-                    await File.WriteAllBytesAsync(Path.Combine("FileStorage", unique_name), data);
-                    return unique_name;
-                }
-                catch
-                {
-                    return "0";
-                }
-            }
-        }
         public static int DeleteMessage(int ChatID, string MessageID, HttpContext context)
         {
             var username = context.User.FindFirst("username")?.Value;

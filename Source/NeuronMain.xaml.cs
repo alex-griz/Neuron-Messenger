@@ -110,8 +110,11 @@ namespace Neuron
             {
                 string filePath = dialog.FileName;
                 string type = filePath.Split('.').Last();
-                var content = new ByteArrayContent(await File.ReadAllBytesAsync(filePath));
-                var response = await MainWindow.client.PostAsync($"http://localhost:5156/Upload?type={type}", content);
+
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 32768, true);
+                using var content = new StreamContent(stream);
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                var response = await MainWindow.client.PostAsync($"http://localhost:5156/Upload?type={type}",content);
                 var result = await response.Content.ReadAsStringAsync();
 
                 switch (result)
@@ -126,6 +129,21 @@ namespace Neuron
                         break;
                 }
             }
+        }
+        private async Task DownloadFileAsync(string fileName)
+        {
+            var response = await MainWindow.client.GetAsync($"http://localhost:5156/Download?fileName={fileName}",
+             HttpCompletionOption.ResponseHeadersRead);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            await using var contentStream = await response.Content.ReadAsStreamAsync();
+            await using var fileStream = new FileStream(Path.Combine("FileStorage", fileName), FileMode.Create, FileAccess.Write, FileShare.None, 32768, true);
+
+            await contentStream.CopyToAsync(fileStream);
         }
         private void OpenProfileEditor(object sender, RoutedEventArgs e)
         {

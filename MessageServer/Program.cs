@@ -2,6 +2,7 @@ using NeuronServer.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MySqlX.XDevAPI.Common;
 
 namespace NeuronServer
 {
@@ -85,14 +86,47 @@ namespace NeuronServer
                 var result = SQL_Injections.Registration(username, name, password, public_key, private_key);
                 return result.ToString();
             });
-            app.MapPost("/Upload", async ( string type, HttpContext context) =>
+            app.MapPost("/Upload", async (string type, HttpContext context) =>
             {
-                using var ms = new MemoryStream();
-                await context.Request.Body.CopyToAsync(ms);
-                byte[] data = ms.ToArray();
-
-                string result = await SQL_Injections.UploadData(type, data);
-                return  Results.Text(result);
+                try
+                {
+                    string unique_name = $"{Guid.NewGuid():N}.{type}";
+                    long total_bytes = 0;
+                    byte[] buffer = new byte[32768];
+                    using var file_stream = new FileStream(Path.Combine("FileStorage", unique_name), FileMode.Create, FileAccess.Write, FileShare.None, 32768, true);
+                    using var body =  context.Request.Body;
+                    while (true)
+                    {
+                        int bytesRead = await body.ReadAsync(buffer, 0, buffer.Length);
+                        if (bytesRead == 0) break;
+                        total_bytes += bytesRead;
+                        if (total_bytes > 1024 * 1024 * 100)
+                        {
+                            File.Delete(Path.Combine("FileStorage", unique_name));
+                            return Results.Text("2");
+                        }
+                        await file_stream.WriteAsync(buffer, 0, bytesRead);
+                    }
+                    return Results.Text(unique_name);
+                }
+                catch
+                {
+                    return Results.Text("0");
+                }
+            }).RequireAuthorization();
+            app.MapGet("/Download", async (string file_name, HttpContext context) =>
+            {
+                string path = Path.Combine("FileStorage", file_name);
+                if (!File.Exists(path))
+                {
+                    context.Response.StatusCode = 404;
+                    return;
+                }
+                using var file_stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 32768, true);
+                context.Response.ContentType = "application/octet-stream";
+                context.Response.Headers.ContentDisposition = $"attachment; filename=\"{file_name}\"";
+                await file_stream.CopyToAsync(context.Response.Body);
+                
             }).RequireAuthorization();
             app.MapDelete("/DeleteMessage", (int ChatId, string MessageId, HttpContext context) => SQL_Injections.DeleteMessage(ChatId, MessageId, context)).RequireAuthorization();
 
