@@ -24,7 +24,7 @@ namespace Neuron
             {
                 try
                 {
-                    string key = File.ReadAllText($"Security_keys/{Login}.txt");
+                    string key = File.ReadAllText($"Security_keys/{loginData.Login}.txt");
                     Login = loginData.Login;
                     LoginFunction(loginData.Password, key);
                 }

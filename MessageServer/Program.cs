@@ -2,7 +2,6 @@ using NeuronServer.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using MySqlX.XDevAPI.Common;
 
 namespace NeuronServer
 {

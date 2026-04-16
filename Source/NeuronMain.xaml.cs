@@ -36,9 +36,13 @@ namespace Neuron
                 .WithAutomaticReconnect()
                 .Build();
 
-            hubConnection.On<ChatMessage>("GetMessage", (message) =>
+            hubConnection.On<ChatMessage>("GetMessage", async (message) =>
             {
                 string message_text = Commands.DecryptMessage(message.Message, chatCache[message.ChatID].Aes_key, message.Iv);
+                if (message.Type == 2)
+                {
+                    await DownloadFileAsync(message_text);
+                }
                 if (message.ChatID == ChooseContact)
                 {
                     commands.UpdateMessages(this, message, message_text);
@@ -88,7 +92,7 @@ namespace Neuron
         }
         private void SendMessage(object sender, RoutedEventArgs e)
         {
-            commands.SendMessage(this, MessageField.Text, hubConnection);
+            commands.SendMessage(this, MessageField.Text, hubConnection, 1);
             MessageField.Clear();
         }
         private void OpenChatFeatures(object sender, RoutedEventArgs e)
@@ -126,13 +130,16 @@ namespace Neuron
                         MessageBox.Show("Размер файла превышает 100 Мб", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                     default:
+                        MessageBox.Show(result);
+                        commands.SendMessage(this, result, hubConnection, 2);
                         break;
                 }
             }
         }
-        private async Task DownloadFileAsync(string fileName)
+        public async Task DownloadFileAsync(string fileName)
         {
-            var response = await MainWindow.client.GetAsync($"http://localhost:5156/Download?fileName={fileName}",
+            MessageBox.Show(fileName);
+            var response = await MainWindow.client.GetAsync($"http://localhost:5156/Download?file_name={fileName}",
              HttpCompletionOption.ResponseHeadersRead);
 
             if (!response.IsSuccessStatusCode)
@@ -249,7 +256,21 @@ namespace Neuron
                     string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
                     string time = MessageList.Rows[i][2].ToString();
                     var item = new ListBoxItem();
-                    item.Content = neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time;
+                    if (Convert.ToInt32(MessageList.Rows[i][7]) == 2)
+                    {
+                        try
+                        {
+                            //открываем и отображаем нужный файл
+                        }
+                        catch
+                        {
+                            await neuronMain.DownloadFileAsync(message);
+                        }
+                    }
+                    else
+                    {
+                        item.Content = neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time;
+                    }
                     if (MessageList.Rows[i][6].ToString() != null)
                     {
                         item.Tag = MessageList.Rows[i][6].ToString();
@@ -280,12 +301,19 @@ namespace Neuron
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var item = new ListBoxItem();
-                item.Content = $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}";
+                if (chatMessage.Type == 2)
+                {
+                    //показываем файл
+                }
+                else
+                {
+                    item.Content = $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}";
+                }
                 item.Tag = chatMessage.MessageID;
                 neuronMain.MessagesField.Items.Add(item);
             });
         }
-        public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection)
+        public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection, int type)
         {
             var encrypted_data = EncryptMessage(MessageText, neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key);
             ChatMessage message = new ChatMessage();
@@ -297,6 +325,7 @@ namespace Neuron
             message.Time = DateTime.Now.ToString("HH:mm");
             message.Date = DateTime.Now.ToString("dd.MM.yyyy");
             message.Iv = encrypted_data.Iv;
+            message.Type = type;
 
             await hubConnection.InvokeAsync("SendMessage", NeuronMain.ChooseContact, message);
         }
@@ -449,7 +478,7 @@ namespace Neuron
         public string Time { get; set; }
         public string Date { get; set; }
         public byte[] Iv { get; set; }
-        //public string DataPath { get; set; }
+        public int Type { get; set;  }
     }
     public class ChatData()
     {

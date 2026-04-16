@@ -39,7 +39,7 @@ public class ChatHub: Hub
             }
         }
         using var connection = db.GetNewConnection();
-        using var command = new MySqlCommand("INSERT INTO `MessageBase` (`MessageID`, `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Iv`) VALUES (@MI, @CI ,@S, @M, @T, @D, @Iv)", connection);
+        using var command = new MySqlCommand("INSERT INTO `MessageBase` (`MessageID`, `ChatID`,`Sender`, `Message`, `Time`, `Date`, `Iv`, `Type`) VALUES (@MI, @CI ,@S, @M, @T, @D, @Iv, @Tp)", connection);
 
         command.Parameters.AddWithValue("@MI" , message.MessageID);
         command.Parameters.Add("@S", MySqlDbType.VarChar).Value = message.Sender;
@@ -48,7 +48,7 @@ public class ChatHub: Hub
         command.Parameters.Add("@CI", MySqlDbType.Int32).Value = message.ChatID;
         command.Parameters.Add("@D", MySqlDbType.VarChar).Value = message.Date;
         command.Parameters.AddWithValue("@Iv", message.Iv);
-        //command.Parameters.AddWithValue("@DP", message.DataPath);
+        command.Parameters.AddWithValue("@Tp", message.Type);
 
         try
         {
@@ -70,5 +70,5 @@ public class ChatMessage
     public string Time {get; set;}
     public string Date {get; set;}
     public byte[] Iv { get; set; }
-    //public string DataPath { get; set; }
+    public int Type {get; set;}
 }
