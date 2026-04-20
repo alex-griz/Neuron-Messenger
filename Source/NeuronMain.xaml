@@ -243,7 +243,7 @@
                       Margin="0,0,0,10" Background="#208C8C8C">
                 <StackPanel>
                     <Button Foreground="White" 
-                            FontFamily="Bahnschrift Light Condensed" 
+                            FontFamily="Cascadia Code" 
                             FontSize="20" 
                             Content="Профиль" 
                             Background="Transparent" 
@@ -252,7 +252,7 @@
                             Click="OpenProfileEditor"
                             HorizontalAlignment="Left"/>
                     <Button Foreground="White" 
-                            FontFamily="Bahnschrift Light Condensed" 
+                            FontFamily="Cascadia Code" 
                             FontSize="20" 
                             Content="Интерфейс" 
                             Background="Transparent" 
@@ -260,7 +260,7 @@
                             BorderBrush="{x:Null}"
                             HorizontalAlignment="Left"/>
                     <Button Foreground="White" 
-                            FontFamily="Bahnschrift Light Condensed" 
+                            FontFamily="Cascadia Code" 
                             FontSize="20" 
                             Content="Выйти" 
                             Background="Transparent" 

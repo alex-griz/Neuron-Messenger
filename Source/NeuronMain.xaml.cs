@@ -130,7 +130,6 @@ namespace Neuron
                         MessageBox.Show("Размер файла превышает 100 Мб", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                     default:
-                        MessageBox.Show(result);
                         commands.SendMessage(this, result, hubConnection, 2);
                         break;
                 }
@@ -138,7 +137,6 @@ namespace Neuron
         }
         public async Task DownloadFileAsync(string fileName)
         {
-            MessageBox.Show(fileName);
             var response = await MainWindow.client.GetAsync($"http://localhost:5156/Download?file_name={fileName}",
              HttpCompletionOption.ResponseHeadersRead);
 
@@ -418,14 +416,16 @@ namespace Neuron
                 string username = row[0].ToString();
                 string name = row[1].ToString();
                 string key = row[2].ToString();
+                string image_path = row[3].ToString();
                 try
                 {
                     neuronMain.userCache[username].Name = name;
                     neuronMain.userCache[username].public_key = key;
+                    neuronMain.userCache[username].ImagePath = image_path;
                 }
                 catch
                 {
-                    neuronMain.userCache[username] = new UserData{Name = name, public_key = key};
+                    neuronMain.userCache[username] = new UserData{Name = name, public_key = key, ImagePath = image_path};
                 }
 
                 MembersList.users.Add(new CheckItem { Name = username, IsSelected = false });
@@ -491,7 +491,7 @@ namespace Neuron
     {
         public string Name { get; set; }
         public string public_key { get; set; }
-        //public string ImagePath { get; set; }
+        public string ImagePath { get; set; }
     }
     public class EncryptedMessage
     {
