@@ -340,16 +340,17 @@ namespace NeuronServer
                 return 0;
             }
         }
-        public static int ChangeProfileData(string new_username, string new_name, string new_bio, HttpContext context)
+        public static int ChangeProfileData(string new_username, string new_name, string new_bio, string image_path, HttpContext context)
         {
             var username = context.User.FindFirst("username")?.Value;
             using var connection = db.GetNewConnection();
-            using var command = new MySqlCommand("UPDATE `ProfileBase` SET `Username` = @UN ,`Name` = @U , `Description` = @D WHERE `Username`= @UI", connection);
+            using var command = new MySqlCommand("UPDATE `ProfileBase` SET `Username` = @UN ,`Name` = @U , `Description` = @D, `Photo` = @P WHERE `Username`= @UI", connection);
 
             command.Parameters.AddWithValue("@UN", new_username);
             command.Parameters.AddWithValue("@U", new_name);
             command.Parameters.AddWithValue("@D", new_bio);
             command.Parameters.AddWithValue("@UI", username);
+            command.Parameters.AddWithValue("@P", image_path);
 
             try
             {

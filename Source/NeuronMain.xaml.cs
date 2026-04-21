@@ -352,6 +352,7 @@ namespace Neuron
                 string name = row[1].ToString();
                 int ChatID = Convert.ToInt32(row[0]);
                 byte[] Aes = rsa.Decrypt((byte[])row[2], RSAEncryptionPadding.OaepSHA256);
+                string image_path = row[3].ToString();
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -359,7 +360,7 @@ namespace Neuron
                     {
                         Name = name,
                         Type = 0,
-                        ImagePath = "",
+                        ImagePath = image_path,
                         Aes_key = Aes
                     };
                     var contact = new ContactButton
@@ -377,6 +378,7 @@ namespace Neuron
                 int ChatID = Convert.ToInt32(row[0]);
                 int type = Convert.ToInt16(row[2]);
                 byte[] Aes = rsa.Decrypt((byte[])row[3], RSAEncryptionPadding.OaepSHA256);
+                string image_path = row[4].ToString();
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -384,7 +386,7 @@ namespace Neuron
                     {
                         Name = name,
                         Type = type,
-                        ImagePath = "",
+                        ImagePath = image_path,
                         Aes_key = Aes
                     };
                     var contact = new ContactButton

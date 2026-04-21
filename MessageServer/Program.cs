@@ -71,7 +71,7 @@ namespace NeuronServer
             app.MapDelete("/DeleteMember", (int ChatId, string[] target_members, HttpContext context) => SQL_Injections.DeleteMember(ChatId, target_members, context)).RequireAuthorization();
             app.MapPost("/AddContact",(string target_username, HttpContext context) => SQL_Injections.AddContact(target_username, context)).RequireAuthorization();
             app.MapPost("/AddGroup", (string name, HttpContext context) => SQL_Injections.AddGroup(name,context)).RequireAuthorization();
-            app.MapPost("/ChangeProfileData", (string username, string name, string bio, HttpContext context) => SQL_Injections.ChangeProfileData(username, name, bio, context)).RequireAuthorization();
+            app.MapPost("/ChangeProfileData", (string username, string name, string bio, string image_path, HttpContext context) => SQL_Injections.ChangeProfileData(username, name, bio, image_path, context)).RequireAuthorization();
             app.MapPost("/Reg", async (HttpContext context) =>
             {
                 var form = await context.Request.ReadFormAsync();
