@@ -38,13 +38,13 @@ namespace Neuron
             string avatar_path = profileTable.Rows[0][3].ToString();
             if(!string.IsNullOrEmpty(avatar_path))
             {
-                if (!File.Exists(avatar_path))
+                if (!File.Exists(Path.Combine("FileStorage",avatar_path)))
                 {
                     await DownloadImage(avatar_path);
                 }
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(avatar_path, UriKind.Relative);
+                bitmap.UriSource = new Uri(Path.Combine(Environment.CurrentDirectory, "FileStorage", avatar_path));
                 bitmap.DecodePixelHeight = 160;
                 bitmap.DecodePixelWidth = 160;
                 bitmap.EndInit();
@@ -90,7 +90,7 @@ namespace Neuron
                             MessageBox.Show("Размер файла превышает 100 Мб", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             break;
                         default:
-                            photo_path = Path.Combine("FileStorage",result);
+                            photo_path = result;
                             break;
                     }
                 }
@@ -101,7 +101,7 @@ namespace Neuron
             var response = await MainWindow.client.GetAsync($"http://localhost:5156/Download?file_name={path}",
              HttpCompletionOption.ResponseHeadersRead);
             await using var contentStream = await response.Content.ReadAsStreamAsync();
-            await using var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 32768, true);
+            await using var fileStream = new FileStream(Path.Combine("FileStorage",path), FileMode.Create, FileAccess.Write, FileShare.None, 32768, true);
 
             await contentStream.CopyToAsync(fileStream);
         }

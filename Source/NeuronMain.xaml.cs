@@ -253,26 +253,23 @@ namespace Neuron
                     string sender = MessageList.Rows[i][1].ToString();
                     string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
                     string time = MessageList.Rows[i][2].ToString();
-                    var item = new ListBoxItem();
-                    if (Convert.ToInt32(MessageList.Rows[i][7]) == 2)
+                    int type = Convert.ToInt32(MessageList.Rows[i][7]);
+                    if (type == 2 && !File.Exists(Path.Combine("FileStorage", message)))
                     {
-                        try
-                        {
-                            //открываем и отображаем нужный файл
-                        }
-                        catch
-                        {
-                            await neuronMain.DownloadFileAsync(message);
-                        }
+                        await neuronMain.DownloadFileAsync(message);
                     }
-                    else
+                    var item = new
                     {
-                        item.Content = neuronMain.userCache[sender].Name + "\n \n" + message + "\n \n" + time;
-                    }
-                    if (MessageList.Rows[i][6].ToString() != null)
-                    {
-                        item.Tag = MessageList.Rows[i][6].ToString();
-                    }
+                        SenderName = neuronMain.userCache[sender].Name,
+                        SenderUsername = sender,
+                        MessageText = message,
+                        Time = time,
+                        Type = type,
+                        FileExtension = type == 2 ? Path.GetExtension(message).ToLower() : "",
+                        FileName = type == 2 ? Path.GetFileName(message) : "",
+                        Duration = "",
+                        SenderImagePath = ""
+                    };
                     if (MessageList.Rows[i][3].ToString() == CurrentDate) 
                     {
                         neuronMain.MessagesField.Items.Add(item);

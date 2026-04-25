@@ -137,6 +137,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style TargetType="ListBoxItem">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -164,6 +165,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
         <Style TargetType="ContextMenu">
             <Setter Property="Background" Value="#208C8C8C"/>
             <Setter Property="BorderBrush" Value="White"/>
@@ -211,6 +213,48 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <DataTemplate x:Key="TextTemplate">
+            <TextBlock Text="{Binding MessageText}" TextWrapping="Wrap" FontSize="16"
+                       Foreground="White"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ImageTemplate">
+            <Image Source="{Binding FilePath}" MaxWidth="300" Stretch="Uniform" Margin="0,5,0,0"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="VideoTemplate">
+            <MediaElement Source="{Binding FilePath}" LoadedBehavior="Manual"
+                          Width="300" Height="200" Margin="0,5,0,0"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="AudioTemplate">
+            <StackPanel Margin="0,5">
+                <TextBlock Foreground="#CCCCCC">
+                    <Run Text="🎵 "/>
+                    <Run Text="{Binding FileName}"/>
+                </TextBlock>
+                <TextBlock Text="{Binding Duration, StringFormat='Длительность: {0}'}"
+                           FontSize="12" Foreground="#AAAAAA" Margin="0,2,0,0"/>
+                <Button Content="▶" Click="PlayAudio_Click" Tag="{Binding FilePath}"
+                        Style="{StaticResource GlassButton}" Width="40" Height="30"
+                        FontSize="16" Margin="0,2,0,0"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileTemplate">
+            <StackPanel Margin="0,5" Orientation="Horizontal">
+                <TextBlock Foreground="White" Cursor="Hand" TextDecorations="Underline"
+                           Text="{Binding FileName}" MouseLeftButtonDown="OpenFile_Click"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <local:MessageTypeSelector x:Key="MessageTypeSelector"
+            TextTemplate="{StaticResource TextTemplate}"
+            ImageTemplate="{StaticResource ImageTemplate}"
+            VideoTemplate="{StaticResource VideoTemplate}"
+            AudioTemplate="{StaticResource AudioTemplate}"
+            FileTemplate="{StaticResource FileTemplate}"/>
     </Window.Resources>
 
     <Grid>
@@ -233,95 +277,47 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Expander Grid.Row="0" 
-                      Style="{StaticResource GlassExpander}"
-                      Header="Настройки" 
-                      Height="Auto"
-                      FontFamily="Cascadia Code" 
-                      FontSize="36" 
-                      Foreground="White"
+            <Expander Grid.Row="0" Style="{StaticResource GlassExpander}"
+                      Header="Настройки" Height="Auto"
+                      FontFamily="Cascadia Code" FontSize="36" Foreground="White"
                       Margin="0,0,0,10" Background="#208C8C8C">
                 <StackPanel>
-                    <Button Foreground="White" 
-                            FontFamily="Cascadia Code" 
-                            FontSize="20" 
-                            Content="Профиль" 
-                            Background="Transparent" 
-                            Height="30" 
-                            BorderBrush="{x:Null}" 
-                            Click="OpenProfileEditor"
-                            HorizontalAlignment="Left"/>
-                    <Button Foreground="White" 
-                            FontFamily="Cascadia Code" 
-                            FontSize="20" 
-                            Content="Интерфейс" 
-                            Background="Transparent" 
-                            Height="30" 
-                            BorderBrush="{x:Null}"
-                            HorizontalAlignment="Left"/>
-                    <Button Foreground="White" 
-                            FontFamily="Cascadia Code" 
-                            FontSize="20" 
-                            Content="Выйти" 
-                            Background="Transparent" 
-                            Height="30" 
-                            BorderBrush="{x:Null}" 
-                            Click="LogOut"
-                            HorizontalAlignment="Left"/>
+                    <Button Foreground="White" FontFamily="Cascadia Code" FontSize="20" 
+                            Content="Профиль" Background="Transparent" Height="30" 
+                            BorderBrush="{x:Null}" Click="OpenProfileEditor" HorizontalAlignment="Left"/>
+                    <Button Foreground="White" FontFamily="Cascadia Code" FontSize="20" 
+                            Content="Интерфейс" Background="Transparent" Height="30" 
+                            BorderBrush="{x:Null}" HorizontalAlignment="Left"/>
+                    <Button Foreground="White" FontFamily="Cascadia Code" FontSize="20" 
+                            Content="Выйти" Background="Transparent" Height="30" 
+                            BorderBrush="{x:Null}" Click="LogOut" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Expander>
 
-            <Expander Grid.Row="1" 
-                      Style="{StaticResource GlassExpander}"
-                      Header="Добавить" 
-                      Height="Auto"
-                      FontFamily="Cascadia Code" 
-                      FontSize="36" 
-                      Foreground="White"
+            <Expander Grid.Row="1" Style="{StaticResource GlassExpander}"
+                      Header="Добавить" Height="Auto"
+                      FontFamily="Cascadia Code" FontSize="36" Foreground="White"
                       Margin="0,0,0,10" Background="#208C8C8C">
                 <StackPanel>
-                    <Button Background="Transparent" 
-                            Foreground="White" 
-                            BorderBrush="{x:Null}" 
-                            Content="Контакт" 
-                            Height="30" 
-                            FontFamily="Cascadia Code" 
-                            FontSize="20" 
-                            Click="Add_Contact"
-                            HorizontalAlignment="Left"/>
-                    <Button Background="Transparent" 
-                            BorderBrush="{x:Null}" 
-                            Foreground="White" 
-                            Content="Группа" 
-                            Height="30" 
-                            FontFamily="Cascadia Code" 
-                            FontSize="20" 
-                            Click="Add_Group"
-                            HorizontalAlignment="Left"/>
+                    <Button Background="Transparent" Foreground="White" BorderBrush="{x:Null}" 
+                            Content="Контакт" Height="30" FontFamily="Cascadia Code" FontSize="20" 
+                            Click="Add_Contact" HorizontalAlignment="Left"/>
+                    <Button Background="Transparent" BorderBrush="{x:Null}" Foreground="White" 
+                            Content="Группа" Height="30" FontFamily="Cascadia Code" FontSize="20" 
+                            Click="Add_Group" HorizontalAlignment="Left"/>
                 </StackPanel>
             </Expander>
 
-            <ListBox x:Name="ChatList" 
-                     Grid.Row="2"
-                     Style="{StaticResource GlassListBox}"
-                     Foreground="White" 
-                     FontFamily="Cascadia Code" 
-                     FontSize="36" 
-                     SelectionMode="Single"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#208C8C8C">
+            <ListBox x:Name="ChatList" Grid.Row="2" Style="{StaticResource GlassListBox}"
+                     Foreground="White" FontFamily="Cascadia Code" FontSize="36" 
+                     SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                     Background="#208C8C8C">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Content="{Binding ButtonName}" 
-                                Tag="{Binding ChatID}" 
-                                Height="60" 
-                                Background="Transparent" 
-                                BorderBrush="{x:Null}" 
-                                Foreground="White" 
-                                FontFamily="Cascadia Code" 
-                                FontSize="24" 
-                                Click="SelectContact"
-                                HorizontalAlignment="Stretch"
-                                Margin="5,3"/>
+                        <Button Content="{Binding ButtonName}" Tag="{Binding ChatID}" Height="60" 
+                                Background="Transparent" BorderBrush="{x:Null}" Foreground="White" 
+                                FontFamily="Cascadia Code" FontSize="24" Click="SelectContact"
+                                HorizontalAlignment="Stretch" Margin="5,3"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -340,59 +336,64 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <Label x:Name="HeadNameLabel" 
-                       Grid.Column="0"
-                       Style="{StaticResource GlassLabel}"
-                       Content="" 
-                       Foreground="White" 
-                       FontFamily="Cascadia Code" 
-                       FontSize="36" 
+                <Label x:Name="HeadNameLabel" Grid.Column="0" Style="{StaticResource GlassLabel}"
+                       Content="" Foreground="White" FontFamily="Cascadia Code" FontSize="36" 
                        Height="60" Background="#208C8C8C"/>
-
-                <Button x:Name="MembersButton" 
-                        Grid.Column="1"
-                        Style="{StaticResource GlassButton}"
-                        Content="Свойства" 
-                        Width="90" 
-                        Height="40" 
-                        Foreground="White" 
-                        FontFamily="Cascadia Code" 
-                        FontSize="18" 
-                        Click="OpenChatFeatures"
+                <Button x:Name="MembersButton" Grid.Column="1" Style="{StaticResource GlassButton}"
+                        Content="Свойства" Width="90" Height="40" Foreground="White" 
+                        FontFamily="Cascadia Code" FontSize="18" Click="OpenChatFeatures"
                         Margin="5,0" Background="#208C8C8C"/>
-
-                <Button x:Name="DeleteButton" 
-                        Grid.Column="2"
-                        Style="{StaticResource GlassButton}"
-                        Content="Удалить" 
-                        Width="90" 
-                        Height="40" 
-                        Foreground="White" 
-                        FontFamily="Cascadia Code" 
-                        FontSize="18" 
-                        Click="DeleteChat" Background="#208C8C8C"/>
+                <Button x:Name="DeleteButton" Grid.Column="2" Style="{StaticResource GlassButton}"
+                        Content="Удалить" Width="90" Height="40" Foreground="White" 
+                        FontFamily="Cascadia Code" FontSize="18" Click="DeleteChat" Background="#208C8C8C"/>
             </Grid>
 
-            <ListBox x:Name="MessagesField"
-                     Grid.Row="1"
-                     Style="{StaticResource GlassListBox}"
-                     Foreground="White"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Background="#208C8C8C" FontFamily="Cascadia Code" FontSize="16">
+            <ListBox x:Name="MessagesField" Grid.Row="1" Style="{StaticResource GlassListBox}"
+                     Foreground="White" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Background="#208C8C8C" FontFamily="Cascadia Code" FontSize="16">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Ответить" />
                         <MenuItem Header="Удалить" Click="DeleteMessage"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Label Content="{Binding}" 
-                               Foreground="White" 
-                               FontFamily="Cascadia Code" 
-                               FontSize="20"
-                               Margin="10,5"
-                               Background="Transparent"/>
+                        <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                        CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                                    <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                                </Border>
+
+                                <TextBlock Grid.Row="0" Grid.Column="1"
+                           Text="{Binding SenderName}" FontWeight="Bold"
+                           Foreground="#FFD700" Cursor="Hand"
+                           VerticalAlignment="Center"
+                           Tag="{Binding SenderUsername}"
+                           MouseLeftButtonDown="Nickname_Click"/>
+
+                                <ContentControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                Margin="0,5,0,0"
+                                Content="{Binding}"
+                                ContentTemplateSelector="{StaticResource MessageTypeSelector}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                           Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                           Margin="0,5,0,0"/>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -404,42 +405,16 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="AttachButton"
-            Grid.Column="0"
-            Style="{StaticResource GlassButton}"
-            Content="📄"
-            Width="60"
-            Height="60"
-            FontSize="28"
-            Foreground="White"
-            Margin="0,0,10,0"
-            Background="#208C8C8C"
-            Click="AttachFile"/>
-
-                <TextBox x:Name="MessageField" 
-             Grid.Column="1"
-             Style="{StaticResource GlassTextBox}"
-             TextWrapping="Wrap" 
-             Text="Сообщение..." 
-             Foreground="White" 
-             FontFamily="Cascadia Code" 
-             FontSize="20" 
-             Height="60" 
-             UndoLimit="512"
-             VerticalAlignment="Center"
-             Margin="0,0,10,0" 
-             Background="#208C8C8C"/>
-
-                <Button x:Name="SendButton"  
-            Grid.Column="2"
-            Style="{StaticResource GlassButton}"
-            Content="🢁" 
-            Height="60" 
-            Width="95" 
-            Foreground="White" 
-            FontSize="36" 
-            Click="SendMessage" 
-            Background="#208C8C8C"/>
+                <Button x:Name="AttachButton" Grid.Column="0" Style="{StaticResource GlassButton}"
+                        Content="📄" Width="60" Height="60" FontSize="28" Foreground="White"
+                        Margin="0,0,10,0" Background="#208C8C8C" Click="AttachFile"/>
+                <TextBox x:Name="MessageField" Grid.Column="1" Style="{StaticResource GlassTextBox}"
+                         TextWrapping="Wrap" Text="Сообщение..." Foreground="White" 
+                         FontFamily="Cascadia Code" FontSize="20" Height="60" UndoLimit="512"
+                         VerticalAlignment="Center" Margin="0,0,10,0" Background="#208C8C8C"/>
+                <Button x:Name="SendButton" Grid.Column="2" Style="{StaticResource GlassButton}"
+                        Content="🢁" Height="60" Width="95" Foreground="White" FontSize="36" 
+                        Click="SendMessage" Background="#208C8C8C"/>
             </Grid>
         </Grid>
     </Grid>
