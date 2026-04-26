@@ -226,6 +226,35 @@ namespace Neuron
                 }
             }
         }
+        private void Nickname_Click(object sender, RoutedEventArgs e)
+        {
+            var textBlock = sender as TextBlock;
+            string username = textBlock.Tag.ToString();
+            ProfileView.target_username = username;
+            ProfileView window = new ProfileView();
+            window.Show();
+        }
+        private void PlayAudio_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            var stackPanel = sender as StackPanel;
+            string filePath = stackPanel.Tag.ToString();
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = filePath,
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+                MessageBox.Show("Не удалось открыть файл, возможно, он отсутствует или повреждён","Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
     public class Commands()
     {
@@ -254,30 +283,45 @@ namespace Neuron
                     string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
                     string time = MessageList.Rows[i][2].ToString();
                     int type = Convert.ToInt32(MessageList.Rows[i][7]);
+                    if (MessageList.Rows[i][3].ToString() != CurrentDate)
+                    {
+                        CurrentDate = MessageList.Rows[i][3].ToString();
+                        neuronMain.MessagesField.Items.Add(CurrentDate);
+                    }
                     if (type == 2 && !File.Exists(Path.Combine("FileStorage", message)))
                     {
                         await neuronMain.DownloadFileAsync(message);
                     }
-                    var item = new
+                    if (type == 1)
                     {
-                        SenderName = neuronMain.userCache[sender].Name,
-                        SenderUsername = sender,
-                        MessageText = message,
-                        Time = time,
-                        Type = type,
-                        FileExtension = type == 2 ? Path.GetExtension(message).ToLower() : "",
-                        FileName = type == 2 ? Path.GetFileName(message) : "",
-                        Duration = "",
-                        SenderImagePath = ""
-                    };
-                    if (MessageList.Rows[i][3].ToString() == CurrentDate) 
-                    {
+                        var item = new
+                        {
+                            SenderName = neuronMain.userCache[sender].Name,
+                            SenderUsername = sender,
+                            SenderImagePath = neuronMain.userCache[sender].ImagePath,
+                            MessageText = message,
+                            Time = time,
+                            Template = neuronMain.FindResource("TextTemplate")
+                        };
                         neuronMain.MessagesField.Items.Add(item);
                     }
                     else
                     {
-                        CurrentDate = MessageList.Rows[i][3].ToString();
-                        neuronMain.MessagesField.Items.Add(CurrentDate);
+                        string ext = Path.GetExtension(message).ToLower();
+                        string templateType = "FileTemplate";
+                        if (ext == ".jpg" || ext == ".png") { templateType = "ImageTemplate";}
+                        if (ext == ".mp4" || ext == ".mov") { templateType = "VideoTemplate"; }
+                        if (ext == ".mp3" || ext == ".wav") { templateType = "AudioTemplate"; }
+                        var item = new
+                        {
+                            SenderName = neuronMain.userCache[sender].Name,
+                            SenderUsername = sender,
+                            SenderImagePath = neuronMain.userCache[sender].ImagePath,
+                            FilePath = Path.Combine(Environment.CurrentDirectory,"FileStorage", message),
+                            FileName = Path.GetFileName(message),
+                            Time = time,
+                            Template = neuronMain.FindResource(templateType)
+                        };
                         neuronMain.MessagesField.Items.Add(item);
                     }
                 }
@@ -350,6 +394,8 @@ namespace Neuron
                 int ChatID = Convert.ToInt32(row[0]);
                 byte[] Aes = rsa.Decrypt((byte[])row[2], RSAEncryptionPadding.OaepSHA256);
                 string image_path = row[3].ToString();
+                if (!string.IsNullOrEmpty(image_path) && !Path.IsPathRooted(image_path))
+                    image_path = Path.Combine(Environment.CurrentDirectory,"FileStorage", image_path);
 
                 if (uniqueChats.Add(ChatID))
                 {
@@ -416,6 +462,8 @@ namespace Neuron
                 string name = row[1].ToString();
                 string key = row[2].ToString();
                 string image_path = row[3].ToString();
+                if (!string.IsNullOrEmpty(image_path) && !Path.IsPathRooted(image_path))
+                    image_path = Path.Combine(Environment.CurrentDirectory,"FileStorage", image_path);
                 try
                 {
                     neuronMain.userCache[username].Name = name;

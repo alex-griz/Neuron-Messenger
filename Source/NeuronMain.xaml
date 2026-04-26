@@ -213,48 +213,181 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
         <DataTemplate x:Key="TextTemplate">
-            <TextBlock Text="{Binding MessageText}" TextWrapping="Wrap" FontSize="16"
-                       Foreground="White"/>
-        </DataTemplate>
+            <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
+                    <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                    CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                        <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SenderName}"
+                       FontWeight="Bold" FontSize="18"
+                       Tag="{Binding SenderUsername}"
+                       MouseLeftButtonDown="Nickname_Click"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding MessageText}" TextWrapping="Wrap"
+                       FontSize="16" Foreground="White" Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                       Margin="0,5,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="ImageTemplate">
-            <Image Source="{Binding FilePath}" MaxWidth="300" Stretch="Uniform" Margin="0,5,0,0"/>
-        </DataTemplate>
+            <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
+                    <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                    CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                        <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SenderName}"
+                       FontWeight="Bold" FontSize="18"
+                       Tag="{Binding SenderUsername}"
+                       MouseLeftButtonDown="Nickname_Click"/>
+
+                    <Image Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                   Source="{Binding FilePath}" MaxWidth="300" Stretch="Uniform"
+                   Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                       Margin="0,5,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="VideoTemplate">
-            <MediaElement Source="{Binding FilePath}" LoadedBehavior="Manual"
-                          Width="300" Height="200" Margin="0,5,0,0"/>
-        </DataTemplate>
+            <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
+                    <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                    CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                        <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SenderName}"
+                       FontWeight="Bold" FontSize="18"
+                       Tag="{Binding SenderUsername}"
+                       MouseLeftButtonDown="Nickname_Click"/>
+
+                    <MediaElement Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                          Source="{Binding FilePath}" LoadedBehavior="Manual"
+                          Width="300" Height="200" Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                       Margin="0,5,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="AudioTemplate">
-            <StackPanel Margin="0,5">
-                <TextBlock Foreground="#CCCCCC">
+            <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                    CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                        <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SenderName}"
+                       FontWeight="Bold" FontSize="18"
+                       Tag="{Binding SenderUsername}"
+                       MouseLeftButtonDown="Nickname_Click"/>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0">
+                        <TextBlock Foreground="#CCCCCC">
                     <Run Text="🎵 "/>
                     <Run Text="{Binding FileName}"/>
-                </TextBlock>
-                <TextBlock Text="{Binding Duration, StringFormat='Длительность: {0}'}"
+                        </TextBlock>
+                        <TextBlock Text="{Binding Duration, StringFormat='Длительность: {0}'}"
                            FontSize="12" Foreground="#AAAAAA" Margin="0,2,0,0"/>
-                <Button Content="▶" Click="PlayAudio_Click" Tag="{Binding FilePath}"
+                        <Button Content="▶" Click="PlayAudio_Click" Tag="{Binding FilePath}"
                         Style="{StaticResource GlassButton}" Width="40" Height="30"
                         FontSize="16" Margin="0,2,0,0"/>
-            </StackPanel>
-        </DataTemplate>
+                    </StackPanel>
 
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                       Margin="0,5,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="FileTemplate">
-            <StackPanel Margin="0,5" Orientation="Horizontal">
-                <TextBlock Foreground="White" Cursor="Hand" TextDecorations="Underline"
-                           Text="{Binding FileName}" MouseLeftButtonDown="OpenFile_Click"/>
-            </StackPanel>
-        </DataTemplate>
+            <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-        <local:MessageTypeSelector x:Key="MessageTypeSelector"
-            TextTemplate="{StaticResource TextTemplate}"
-            ImageTemplate="{StaticResource ImageTemplate}"
-            VideoTemplate="{StaticResource VideoTemplate}"
-            AudioTemplate="{StaticResource AudioTemplate}"
-            FileTemplate="{StaticResource FileTemplate}"/>
+                    <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
+                    CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
+                        <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SenderName}"
+                       FontWeight="Bold" FontSize="18"
+                       Tag="{Binding SenderUsername}"
+                       MouseLeftButtonDown="Nickname_Click"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                       Foreground="White" TextDecorations="Underline"
+                       Text="{Binding FileName}" Cursor="Hand"
+                       MouseLeftButtonDown="OpenFile_Click"
+                       Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
+                       Margin="0,5,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -360,40 +493,7 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#30FFFFFF" CornerRadius="10" Margin="5,3" Padding="10">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Row="0" Grid.Column="0" Width="40" Height="40"
-                        CornerRadius="20" Background="#50FFFFFF" Margin="0,0,10,0">
-                                    <Image Source="{Binding SenderImagePath}" Stretch="UniformToFill"/>
-                                </Border>
-
-                                <TextBlock Grid.Row="0" Grid.Column="1"
-                           Text="{Binding SenderName}" FontWeight="Bold"
-                           Foreground="#FFD700" Cursor="Hand"
-                           VerticalAlignment="Center"
-                           Tag="{Binding SenderUsername}"
-                           MouseLeftButtonDown="Nickname_Click"/>
-
-                                <ContentControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                Margin="0,5,0,0"
-                                Content="{Binding}"
-                                ContentTemplateSelector="{StaticResource MessageTypeSelector}"/>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                           Text="{Binding Time}" FontSize="11" Foreground="#CCCCCC"
-                           Margin="0,5,0,0"/>
-                            </Grid>
-                        </Border>
+                        <ContentControl Content="{Binding}" ContentTemplate="{Binding Template}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
