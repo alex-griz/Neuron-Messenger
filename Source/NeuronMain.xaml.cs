@@ -58,6 +58,7 @@ namespace Neuron
         }
         private void LogOut(object sender, RoutedEventArgs e)
         {
+            hubConnection.StopAsync();
             MainWindow.Login = "";
             string json = "";
             File.WriteAllText("SavedLoginData.json", json);
@@ -71,7 +72,6 @@ namespace Neuron
             var clickedButton = (Button)sender;
 
             string selectContactName = clickedButton.Content.ToString();
-            clicked = clickedButton.DataContext as ContactButton;
             ChooseContact = Convert.ToInt32(clickedButton.Tag);
             ChooseChatName = selectContactName;
             HeadNameLabel.Content = selectContactName;
@@ -169,11 +169,11 @@ namespace Neuron
 
             if(members.Rows[0][0] != MainWindow.Login)
             {
-                ProfileView.target_username = members.Rows[0][0].ToString();
+                ProfileView.target_username = members.Rows[1][0].ToString();
             }
             else
             {
-                ProfileView.target_username = members.Rows[1][0].ToString();
+                ProfileView.target_username = members.Rows[0][0].ToString();
             }
             ProfileView window = new ProfileView();
             window.Show();
@@ -201,35 +201,27 @@ namespace Neuron
         }
         private async void DeleteMessage(object sender, RoutedEventArgs e)
         {
-            var selected = MessagesField.SelectedItem as ListBoxItem;
-            if (selected != null && selected.Tag != null)
+            var selected = MessagesField.SelectedItem as DisplayMessage;
+            var response = await MainWindow.client.DeleteAsync($"http://localhost:5156/DeleteMessage?ChatId={ChooseContact}&MessageId={selected.Id}");
+            var result = int.Parse(await response.Content.ReadAsStringAsync());
+            switch (result)
             {
-                var response = await MainWindow.client.DeleteAsync($"http://localhost:5156/DeleteMessage?ChatId={ChooseContact}&MessageId={selected.Tag.ToString()}");
-                if (!response.IsSuccessStatusCode)
-                {
-                    string error = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Ошибка: {response.StatusCode}\n{error}", "Ошибка", MessageBoxButton.OK);
-                    return;
-                }
-                var result = int.Parse(await response.Content.ReadAsStringAsync());
-                switch (result)
-                {
-                    case 0:
-                        MessageBox.Show("Ошибка на стороне сервера", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        break;
-                    case 1:
-                        MessagesField.Items.Remove(MessagesField.SelectedItem);
-                        break;
-                    case 2:
-                        MessageBox.Show("Недостаточно прав для удаления сообщений в этом чате", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        break;
-                }
+                case 0:
+                    MessageBox.Show("Ошибка на стороне сервера", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    break;
+                case 1:
+                    MessagesField.Items.Remove(MessagesField.SelectedItem);
+                    break;
+                case 2:
+                    MessageBox.Show("Недостаточно прав для удаления сообщений в этом чате", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    break;
             }
         }
         private void Nickname_Click(object sender, RoutedEventArgs e)
         {
-            var textBlock = sender as TextBlock;
-            string username = textBlock.Tag.ToString();
+            var text_block = sender as TextBlock;
+            var item = text_block.DataContext as DisplayMessage;
+            string username = item.SenderUsername;
             ProfileView.target_username = username;
             ProfileView window = new ProfileView();
             window.Show();
@@ -240,8 +232,9 @@ namespace Neuron
         }
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
-            var stackPanel = sender as StackPanel;
-            string filePath = stackPanel.Tag.ToString();
+            var text_block = sender as TextBlock;
+            var item = text_block.DataContext as DisplayMessage;
+            string filePath = item.FilePath;
             try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -275,17 +268,17 @@ namespace Neuron
             neuronMain.MessagesField.Items.Clear();
             if (MessageList.Rows.Count != 0)
             {
-                CurrentDate = MessageList.Rows[0][3].ToString();
+                CurrentDate = MessageList.Rows[0]["Date"].ToString();
                 neuronMain.MessagesField.Items.Add(CurrentDate);
                 for (int i = 0; i < MessageList.Rows.Count; i++)
                 {
-                    string sender = MessageList.Rows[i][1].ToString();
-                    string message = DecryptMessage((byte[])MessageList.Rows[i][5], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i][4]);
-                    string time = MessageList.Rows[i][2].ToString();
-                    int type = Convert.ToInt32(MessageList.Rows[i][7]);
-                    if (MessageList.Rows[i][3].ToString() != CurrentDate)
+                    string sender = MessageList.Rows[i]["Sender"].ToString();
+                    string message = DecryptMessage((byte[])MessageList.Rows[i]["Message"], neuronMain.chatCache[NeuronMain.ChooseContact].Aes_key, (byte[])MessageList.Rows[i]["Iv"]);
+                    string time = MessageList.Rows[i]["Time"].ToString();
+                    int type = Convert.ToInt32(MessageList.Rows[i]["Type"]);
+                    if (MessageList.Rows[i]["Date"].ToString() != CurrentDate)
                     {
-                        CurrentDate = MessageList.Rows[i][3].ToString();
+                        CurrentDate = MessageList.Rows[i]["Date"].ToString();
                         neuronMain.MessagesField.Items.Add(CurrentDate);
                     }
                     if (type == 2 && !File.Exists(Path.Combine("FileStorage", message)))
@@ -294,14 +287,15 @@ namespace Neuron
                     }
                     if (type == 1)
                     {
-                        var item = new
+                        var item = new DisplayMessage
                         {
                             SenderName = neuronMain.userCache[sender].Name,
                             SenderUsername = sender,
                             SenderImagePath = neuronMain.userCache[sender].ImagePath,
                             MessageText = message,
                             Time = time,
-                            Template = neuronMain.FindResource("TextTemplate")
+                            Template = (DataTemplate)neuronMain.FindResource("TextTemplate"),
+                            Id = MessageList.Rows[i]["MessageID"].ToString()
                         };
                         neuronMain.MessagesField.Items.Add(item);
                     }
@@ -312,7 +306,7 @@ namespace Neuron
                         if (ext == ".jpg" || ext == ".png") { templateType = "ImageTemplate";}
                         if (ext == ".mp4" || ext == ".mov") { templateType = "VideoTemplate"; }
                         if (ext == ".mp3" || ext == ".wav") { templateType = "AudioTemplate"; }
-                        var item = new
+                        var item = new DisplayMessage
                         {
                             SenderName = neuronMain.userCache[sender].Name,
                             SenderUsername = sender,
@@ -320,14 +314,15 @@ namespace Neuron
                             FilePath = Path.Combine(Environment.CurrentDirectory,"FileStorage", message),
                             FileName = Path.GetFileName(message),
                             Time = time,
-                            Template = neuronMain.FindResource(templateType)
+                            Template = (DataTemplate)neuronMain.FindResource(templateType),
+                            Id = MessageList.Rows[i]["MessageID"].ToString()
                         };
                         neuronMain.MessagesField.Items.Add(item);
                     }
                 }
             }
         }
-        public void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage, string decrypted_text)
+        public async void UpdateMessages(NeuronMain neuronMain, ChatMessage chatMessage, string decrypted_text)
         {
             if (chatMessage.Date != CurrentDate)
             {
@@ -337,19 +332,46 @@ namespace Neuron
                     });
                 CurrentDate = chatMessage.Date;
             }
-            Application.Current.Dispatcher.Invoke(() =>
+            _=Application.Current.Dispatcher.Invoke(async() =>
             {
-                var item = new ListBoxItem();
-                if (chatMessage.Type == 2)
+                if (chatMessage.Type == 2 && !File.Exists(Path.Combine("FileStorage", decrypted_text)))
                 {
-                    //показываем файл
+                    await neuronMain.DownloadFileAsync(decrypted_text);
+                }
+                if (chatMessage.Type == 1)
+                {
+                    var item = new DisplayMessage
+                    {
+                        SenderName = neuronMain.userCache[chatMessage.Sender].Name,
+                        SenderUsername = chatMessage.Sender,
+                        SenderImagePath = neuronMain.userCache[chatMessage.Sender].ImagePath,
+                        MessageText = decrypted_text,
+                        Time = chatMessage.Time,
+                        Template = (DataTemplate)neuronMain.FindResource("TextTemplate"),
+                        Id = chatMessage.MessageID
+                    };
+                    neuronMain.MessagesField.Items.Add(item);
                 }
                 else
                 {
-                    item.Content = $"{neuronMain.userCache[chatMessage.Sender].Name}\n\n{decrypted_text}\n\n{chatMessage.Time}";
+                    string ext = Path.GetExtension(decrypted_text).ToLower();
+                    string templateType = "FileTemplate";
+                    if (ext == ".jpg" || ext == ".png") { templateType = "ImageTemplate"; }
+                    if (ext == ".mp4" || ext == ".mov") { templateType = "VideoTemplate"; }
+                    if (ext == ".mp3" || ext == ".wav") { templateType = "AudioTemplate"; }
+                    var item = new DisplayMessage
+                    {
+                        SenderName = neuronMain.userCache[chatMessage.Sender].Name,
+                        SenderUsername = chatMessage.Sender,
+                        SenderImagePath = neuronMain.userCache[chatMessage.Sender].ImagePath,
+                        FilePath = Path.Combine(Environment.CurrentDirectory, "FileStorage", decrypted_text),
+                        FileName = Path.GetFileName(decrypted_text),
+                        Time = chatMessage.Time,
+                        Template = (DataTemplate)neuronMain.FindResource(templateType),
+                        Id = chatMessage.MessageID
+                    };
+                    neuronMain.MessagesField.Items.Add(item);
                 }
-                item.Tag = chatMessage.MessageID;
-                neuronMain.MessagesField.Items.Add(item);
             });
         }
         public async void SendMessage(NeuronMain neuronMain, string MessageText, HubConnection hubConnection, int type)
@@ -544,5 +566,17 @@ namespace Neuron
     {
         public byte[] Message { get; set; }
         public byte[] Iv { get; set; }
+    }
+    public class DisplayMessage
+    {
+        public string SenderUsername { get; set; }
+        public string SenderName { get; set; }
+        public string SenderImagePath { get; set; }
+        public string FilePath { get; set; }
+        public string FileName { get; set; }
+        public string Time { get; set; }
+        public string MessageText { get; set; }
+        public string Id { get; set; }
+        public DataTemplate Template { get; set; }
     }
 }
